@@ -21,12 +21,12 @@ public class PerceptronTrainingRule extends Classifier {
 	private DoubleMatrix weightVector; // vector for storing weights
 	private DoubleMatrix deltaWeightVector; // vector for storing delta weights
 	
-	private double learningRate;
-	private double threshold;
-	private int maxIteration;
+	private double learningRate; // learning rate for weight update
+	private double threshold; // MSE threshold
+	private int maxIteration; // maximum number of epoch
 	
 	private boolean randomWeight;
-	private DoubleMatrix initialWeight; // User-given initial weights
+	private DoubleMatrix initialWeight; // user-given initial weights
 	
 	private long randomSeed; // seed used for random number generator
 	
