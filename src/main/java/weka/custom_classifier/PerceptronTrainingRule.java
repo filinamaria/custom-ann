@@ -30,6 +30,8 @@ public class PerceptronTrainingRule extends Classifier {
 	
 	private long randomSeed; // seed used for random number generator
 	
+	private StringBuffer output; // string buffer describing the model
+	
 	/**
 	 * Default constructor
 	 */
@@ -39,6 +41,7 @@ public class PerceptronTrainingRule extends Classifier {
 		this.maxIteration = 0;
 		this.randomWeight = true;
 		this.randomSeed = 0;
+		output = new StringBuffer();
 	}
 	
 	/**
@@ -53,6 +56,7 @@ public class PerceptronTrainingRule extends Classifier {
 		this.maxIteration = maxIteration;
 		this.randomWeight = true;
 		this.randomSeed = 0;
+		output = new StringBuffer();
 	}
 	
 	/**
@@ -69,6 +73,7 @@ public class PerceptronTrainingRule extends Classifier {
 		this.randomWeight = false;
 		this.initialWeight = initialWeight;
 		this.randomSeed = 0;
+		output = new StringBuffer();
 	}
 	
 	/**
@@ -268,10 +273,17 @@ public class PerceptronTrainingRule extends Classifier {
 			
 			meanSquaredError = squaredError / 2.0;
 			
-			System.out.println("epoch " + epoch + ": " + weightVector);
+			output.append("epoch " + epoch + ": " + weightVector + "\n");
 			
 			epoch++;
 		}
+	}
+	
+	/**
+	 * @return string describing the model
+	 */
+	public String toString(){
+		return this.output.toString();
 	}
 	
 	
@@ -308,7 +320,7 @@ public class PerceptronTrainingRule extends Classifier {
 		DoubleMatrix initialWeight = new DoubleMatrix(1, 5);
 		PerceptronTrainingRule ptr = new PerceptronTrainingRule(0.1, 0.01, 10, initialWeight);
 		ptr.buildClassifier(data);
-		
+		System.out.println(ptr);
 		System.out.println(Arrays.asList(ptr.getOptions()));
 	}
 	
