@@ -9,11 +9,14 @@ import org.jblas.DoubleMatrix;
 
 import random.RandomGen;
 import weka.classifiers.Classifier;
+import weka.core.Attribute;
 import weka.core.Capabilities;
-import weka.core.Instance;
 import weka.core.Capabilities.Capability;
+import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader;
+import weka.filters.Filter;
+import weka.filters.supervised.attribute.NominalToBinary;
 
 public class PerceptronTrainingRule extends Classifier {
 	private static final double bias = 1.0; // bias unit
@@ -31,6 +34,8 @@ public class PerceptronTrainingRule extends Classifier {
 	private long randomSeed; // seed used for random number generator
 	
 	private StringBuffer output; // string buffer describing the model
+	
+	private NominalToBinary nominalToBinaryFilter; // filter to convert nominal attributes to binary numeric attributes
 	
 	/**
 	 * Default constructor
@@ -199,6 +204,37 @@ public class PerceptronTrainingRule extends Classifier {
 	}
 	
 	/**
+	 * Check whether training data contains nominal attributes
+	 * @param data training data
+	 * @return true if training data contains nominal attributes
+	 */
+	private boolean nominalData(Instances data){
+		boolean found = false;
+		
+		Enumeration attributes = data.enumerateAttributes();
+		while(attributes.hasMoreElements() && !found){
+			Attribute attribute = (Attribute) attributes.nextElement();
+			if(attribute.isNominal())
+				found = true;
+		}
+		
+		return found;
+	}
+	
+	/**
+	 * Convert nominal attribute to binary numeric attribute
+	 * @param data
+	 * @return instances with numeric attributes
+	 * @throws Exception 
+	 */
+	public Instances nominalToNumeric(Instances data) throws Exception{
+		nominalToBinaryFilter = new NominalToBinary();
+		nominalToBinaryFilter.setInputFormat(data);
+		
+		return Filter.useFilter(data, nominalToBinaryFilter);
+	}
+	
+	/**
 	 * Call this function to build and train a neural network for the training data provided.
 	 * @param data the training data
 	 */
@@ -209,6 +245,10 @@ public class PerceptronTrainingRule extends Classifier {
 		// remove instances with missing class
 		data = new Instances(data);
 		data.deleteWithMissingClass();
+		
+		// check if data contains nominal attributes
+		if(nominalData(data))
+			data = nominalToNumeric(data);
 		
 		// create weight and delta weight vector
 		this.weightVector = new DoubleMatrix(1, data.numAttributes());
@@ -234,7 +274,7 @@ public class PerceptronTrainingRule extends Classifier {
 			
 			while(instances.hasMoreElements()){
 				Instance instance = (Instance) instances.nextElement();
-				
+								
 				double sum = 0.0;
 				double output = 0.0;
 				double error = 0.0;
@@ -306,7 +346,7 @@ public class PerceptronTrainingRule extends Classifier {
 	 * @throws Exception
 	 */
 	public static void main(String [] args) throws Exception{
-		String dataset = "example/test.arff";
+		String dataset = "example/weather.numeric.arff";
 		
 		Instances data = loadDatasetArff(dataset);
 		data.setClass(data.attribute(data.numAttributes() - 1));
@@ -315,10 +355,21 @@ public class PerceptronTrainingRule extends Classifier {
 		
 		mlp.buildClassifier(data);
 		mlp.setHiddenLayers("0");
-		System.out.println(Arrays.asList(mlp.getOptions()));*/
+		System.out.println(mlp);*/
 		
-		DoubleMatrix initialWeight = new DoubleMatrix(1, 5);
+		DoubleMatrix initialWeight = new DoubleMatrix(1, 7);
 		PerceptronTrainingRule ptr = new PerceptronTrainingRule(0.1, 0.01, 10, initialWeight);
+		
+		/*Enumeration instances = data.enumerateInstances();
+		while(instances.hasMoreElements()){
+			Instance instance = (Instance) instances.nextElement();
+			for(int i = 0; i < instance.numAttributes(); i++){
+				System.out.print(instance.value(i) + " ");
+			}
+			
+			System.out.println();
+		}*/
+		
 		ptr.buildClassifier(data);
 		System.out.println(ptr);
 		System.out.println(Arrays.asList(ptr.getOptions()));

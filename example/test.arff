@@ -1,10 +1,10 @@
 @relation weather
 
-@attribute x1 REAL
-@attribute x2 REAL
-@attribute x3 REAL
-@attribute x4 REAL
-@attribute x5 REAL
+@attribute x1 numeric
+@attribute x2 numeric
+@attribute x3 numeric
+@attribute x4 numeric
+@attribute x5 numeric
 
 @data
 5.1,3.5,1.4,0.2,1
