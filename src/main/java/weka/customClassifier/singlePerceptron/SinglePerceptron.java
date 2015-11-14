@@ -1,4 +1,4 @@
-package weka.custom_classifier;
+package weka.customClassifier.singlePerceptron;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,14 +11,14 @@ import random.RandomGen;
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.Capabilities;
-import weka.core.Capabilities.Capability;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.Capabilities.Capability;
 import weka.core.converters.ArffLoader;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.NominalToBinary;
 
-public class PerceptronTrainingRule extends Classifier {
+public class SinglePerceptron extends Classifier{
 	private static final double bias = 1.0; // bias unit
 	
 	private DoubleMatrix weightVector; // vector for storing weights
@@ -29,7 +29,7 @@ public class PerceptronTrainingRule extends Classifier {
 	private int maxIteration; // maximum number of epoch
 	
 	private boolean randomWeight;
-	private DoubleMatrix initialWeight; // user-given initial weights
+	private double initialWeight; // user-given initial weights
 	
 	private long randomSeed; // seed used for random number generator
 	
@@ -37,10 +37,16 @@ public class PerceptronTrainingRule extends Classifier {
 	
 	private NominalToBinary nominalToBinaryFilter; // filter to convert nominal attributes to binary numeric attributes
 	
+	private Attribute classAttribute;
+	
+	private int selectedAlgo;
+	
+	private Instances dataSet;
+	
 	/**
 	 * Default constructor
 	 */
-	public PerceptronTrainingRule(){
+	public SinglePerceptron(){
 		this.learningRate = 0.0;
 		this.threshold = 0.0;
 		this.maxIteration = 0;
@@ -55,7 +61,7 @@ public class PerceptronTrainingRule extends Classifier {
 	 * @param threshold
 	 * @param maxIteration
 	 */
-	public PerceptronTrainingRule(double learningRate, double threshold, int maxIteration){
+	public SinglePerceptron(double learningRate, double threshold, int maxIteration){
 		this.learningRate = learningRate;
 		this.threshold = threshold;
 		this.maxIteration = maxIteration;
@@ -71,7 +77,7 @@ public class PerceptronTrainingRule extends Classifier {
 	 * @param maxIteration
 	 * @param initialWeight
 	 */
-	public PerceptronTrainingRule(double learningRate, double threshold, int maxIteration, DoubleMatrix initialWeight){
+	public SinglePerceptron(double learningRate, double threshold, int maxIteration, double initialWeight){
 		this.learningRate = learningRate;
 		this.threshold = threshold;
 		this.maxIteration = maxIteration;
@@ -115,6 +121,17 @@ public class PerceptronTrainingRule extends Classifier {
 	}
 	
 	/**
+	 * Set selected single perceptron training algorithm
+	 * @param algorithm
+	 */
+	public void setAlgo(int algorithm){
+		if(algorithm != Options.DeltaRuleBatch && algorithm != Options.DeltaRuleIncremental && algorithm != Options.PerceptronTrainingRule)
+			throw new RuntimeException("invalid algorithm");
+		
+		this.selectedAlgo = algorithm;
+	}
+	
+	/**
 	 * Randomize vector elements with uniform distribution
 	 * @param weightVec Vector with it's elements randomly initialized
 	 */
@@ -130,7 +147,7 @@ public class PerceptronTrainingRule extends Classifier {
 	 * Get current settings of classifier
 	 */
 	public String[] getOptions(){
-		String[] options = new String[4];
+		String[] options = new String[5];
 		
 		StringBuffer learningRate = new StringBuffer("-LearningRate ");
 		learningRate.append(this.learningRate);
@@ -147,6 +164,10 @@ public class PerceptronTrainingRule extends Classifier {
 		StringBuffer randomWeight = new StringBuffer("-RandomWeight ");
 		randomWeight.append(this.randomWeight);
 		options[3] = randomWeight.toString();
+		
+		StringBuffer algorithm = new StringBuffer("-Algorithm ");
+		algorithm.append(Options.algorithm(this.selectedAlgo));
+		options[4] = algorithm.toString();
 		
 		return options;
 	}
@@ -192,15 +213,34 @@ public class PerceptronTrainingRule extends Classifier {
 	private double sum(Instance instance){
 		double sum = 0.0;
 		
-		for(int i = 0; i < instance.numAttributes(); i++){
-			if(i == 0){
-				sum += bias * weightVector.get(i);
-			}else{
-				sum += instance.value(i - 1) * weightVector.get(i);
-			}
+		sum += bias * weightVector.get(0);
+		
+		for(int i = 1; i < weightVector.length; i++){
+			sum += instance.value(i - 1) * weightVector.get(i);
 		}
 		
 		return sum;
+	}
+	
+	/**
+	 * Target depending on whether class attribute is nominal
+	 * @param instance
+	 * @param nominal
+	 * @return
+	 */
+	private double target(Instance instance, boolean nominal){
+		double target = 0.0;
+		
+		if(nominal){
+			if(Double.compare(instance.value(instance.classAttribute()), 1.0) == 0)
+				target = 1.0;
+			else if (Double.compare(instance.value(instance.classAttribute()), 0.0) == 0)
+				target = -1.0;
+		}else{
+			target = instance.value(instance.classAttribute());
+		}
+		
+		return target;
 	}
 	
 	/**
@@ -228,10 +268,12 @@ public class PerceptronTrainingRule extends Classifier {
 	 * @throws Exception 
 	 */
 	public Instances nominalToNumeric(Instances data) throws Exception{
-		nominalToBinaryFilter = new NominalToBinary();
-		nominalToBinaryFilter.setInputFormat(data);
+		this.nominalToBinaryFilter = new NominalToBinary();
+		this.nominalToBinaryFilter.setInputFormat(data);
 		
-		return Filter.useFilter(data, nominalToBinaryFilter);
+		data = Filter.useFilter(data, this.nominalToBinaryFilter);
+		
+		return data;
 	}
 	
 	/**
@@ -239,17 +281,41 @@ public class PerceptronTrainingRule extends Classifier {
 	 * @param data the training data
 	 */
 	public void buildClassifier(Instances data) throws Exception {
+		this.dataSet = data;
+		
 		// test whether classifier can handle the data
 		getCapabilities().testWithFail(data);
 		
 		// remove instances with missing class
 		data = new Instances(data);
 		data.deleteWithMissingClass();
+				
+		// remove instances with missing values
+		Enumeration attributes = data.enumerateAttributes();
+		while(attributes.hasMoreElements()){
+			Attribute attribute = (Attribute) attributes.nextElement();
+			data.deleteWithMissing(attribute);
+		}
 		
 		// check if data contains nominal attributes
 		if(nominalData(data))
 			data = nominalToNumeric(data);
 		
+		this.classAttribute = data.classAttribute();
+		
+		Enumeration instancess = data.enumerateInstances();
+		while(instancess.hasMoreElements()){
+			Instance instance = (Instance) instancess.nextElement();
+			for(int i = 0; i < instance.numAttributes(); i++){
+				if(instance.attribute(i).isNominal())
+					System.out.print(instance.stringValue(i) + " ");
+				else
+					System.out.print(instance.value(i) + " ");
+			}
+			
+			System.out.println();
+		}
+
 		// create weight and delta weight vector
 		this.weightVector = new DoubleMatrix(1, data.numAttributes());
 		this.deltaWeightVector = new DoubleMatrix(1, data.numAttributes());
@@ -258,10 +324,9 @@ public class PerceptronTrainingRule extends Classifier {
 		if(this.randomWeight){
 			randomizeWeight(weightVector);
 		}else{
-			if(this.initialWeight.rows != this.weightVector.rows || this.initialWeight.columns != this.weightVector.columns)
-				throw new RuntimeException("initial weight size doesn't match with number of attributes");
-			
-			this.weightVector = this.initialWeight;
+			for(int i = 0; i < this.weightVector.length; i++){
+				this.weightVector.put(i, this.initialWeight);
+			}
 		}
 		
 		int epoch = 0;
@@ -275,23 +340,39 @@ public class PerceptronTrainingRule extends Classifier {
 			while(instances.hasMoreElements()){
 				Instance instance = (Instance) instances.nextElement();
 								
-				double sum = 0.0;
+				double sum = this.sum(instance);
 				double output = 0.0;
-				double error = 0.0;
 				
-				sum = this.sum(instance);				
-				output = this.sign(sum);
-				error = instance.value(instance.classAttribute()) - output;
+				if(this.selectedAlgo == Options.PerceptronTrainingRule)
+					output = this.sign(sum);	
+				else 
+					output = sum;	
+				
+				double target = this.target(instance, instance.classAttribute().isNominal());
+				double error = target - output;
 				
 				for(int i = 0; i < instance.numAttributes(); i++){
 					if(i == 0){
-						deltaWeightVector.put(i, this.learningRate * error * bias);
+						if(this.selectedAlgo != Options.DeltaRuleBatch)
+							deltaWeightVector.put(i, this.learningRate * error * bias);
+						else
+							deltaWeightVector.put(i, deltaWeightVector.get(i) + error * bias);
 					}else{
-						deltaWeightVector.put(i, this.learningRate * error * instance.value(i - 1));
+						if(this.selectedAlgo != Options.DeltaRuleBatch)
+							deltaWeightVector.put(i, this.learningRate * error * instance.value(i - 1));
+						else
+							deltaWeightVector.put(i, deltaWeightVector.get(i) + error * instance.value(i - 1));
 					}
 				}
 				
+				if(this.selectedAlgo != Options.DeltaRuleBatch)
+					weightVector.addi(deltaWeightVector);
+			}
+			
+			if(this.selectedAlgo == Options.DeltaRuleBatch){
+				deltaWeightVector.muli(this.learningRate);
 				weightVector.addi(deltaWeightVector);
+				deltaWeightVector = DoubleMatrix.zeros(deltaWeightVector.rows, deltaWeightVector.columns);
 			}
 			
 			instances = data.enumerateInstances();
@@ -300,13 +381,10 @@ public class PerceptronTrainingRule extends Classifier {
 			while(instances.hasMoreElements()){
 				Instance instance = (Instance) instances.nextElement();
 				
-				double sum = 0.0;
-				double output = 0.0;
-				double error = 0.0;
-				
-				sum = this.sum(instance);				
-				output = this.sign(sum);
-				error = instance.value(instance.classAttribute()) - output;
+				double sum = this.sum(instance);
+				double output = this.sign(sum);
+				double target = this.target(instance, instance.classAttribute().isNominal());
+				double error = target - output;
 				
 				squaredError += Math.pow(error, 2.0);
 			}
@@ -317,6 +395,39 @@ public class PerceptronTrainingRule extends Classifier {
 			
 			epoch++;
 		}
+	}
+	
+	/**
+	 * @param instance instance to be classified
+	 * @return class value of instance
+	 * @throws Exception 
+	 */
+	public double classifyInstance(Instance instance) throws Exception{	
+		Instances instances = new Instances(dataSet);
+		instances.delete();
+		instances.add(instance);
+		
+		if(this.nominalData(instances))
+			instances = this.nominalToNumeric(instances);
+		
+		double sum = this.sum(instances.firstInstance());
+		double output = this.sign(sum);
+		
+		if(this.classAttribute.isNominal()){
+			if(Double.compare(output, 1.0) == 0)
+				output = 1.0;
+			else if (Double.compare(output, -1.0) == 0)
+				output = 0.0;
+		}
+		
+		return output;
+	}
+	
+	/**
+	 * @return class attribute
+	 */
+	public Attribute classAttribute(){
+		return this.classAttribute;
 	}
 	
 	/**
@@ -345,34 +456,23 @@ public class PerceptronTrainingRule extends Classifier {
 	 * @param args
 	 * @throws Exception
 	 */
-	public static void main(String [] args) throws Exception{
+	public static void main(String[] args) throws Exception{
 		String dataset = "example/weather.numeric.arff";
 		
 		Instances data = loadDatasetArff(dataset);
 		data.setClass(data.attribute(data.numAttributes() - 1));
-
-		/*MultilayerPerceptron mlp = new MultilayerPerceptron();
 		
-		mlp.buildClassifier(data);
-		mlp.setHiddenLayers("0");
-		System.out.println(mlp);*/
+		SinglePerceptron ptr = new SinglePerceptron(0.1, 0.01, 10, 0);
+		ptr.setAlgo(Options.PerceptronTrainingRule);
 		
-		DoubleMatrix initialWeight = new DoubleMatrix(1, 7);
-		PerceptronTrainingRule ptr = new PerceptronTrainingRule(0.1, 0.01, 10, initialWeight);
+		ptr.buildClassifier(data);		
 		
-		/*Enumeration instances = data.enumerateInstances();
-		while(instances.hasMoreElements()){
-			Instance instance = (Instance) instances.nextElement();
-			for(int i = 0; i < instance.numAttributes(); i++){
-				System.out.print(instance.value(i) + " ");
-			}
-			
-			System.out.println();
-		}*/
-		
-		ptr.buildClassifier(data);
 		System.out.println(ptr);
+		
+		Instance instance = data.instance(7);
+		System.out.println(instance);
+		System.out.println(ptr.classifyInstance(instance));
+		
 		System.out.println(Arrays.asList(ptr.getOptions()));
 	}
-	
 }
