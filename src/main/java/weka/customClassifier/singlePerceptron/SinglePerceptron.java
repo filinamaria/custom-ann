@@ -46,7 +46,7 @@ public class SinglePerceptron extends Classifier{
 	/**
 	 * Default constructor
 	 */
-	public SinglePerceptron(){
+	public SinglePerceptron() {
 		this.learningRate = 0.0;
 		this.threshold = 0.0;
 		this.maxIteration = 0;
@@ -61,7 +61,7 @@ public class SinglePerceptron extends Classifier{
 	 * @param threshold
 	 * @param maxIteration
 	 */
-	public SinglePerceptron(double learningRate, double threshold, int maxIteration){
+	public SinglePerceptron(double learningRate, double threshold, int maxIteration) {
 		this.learningRate = learningRate;
 		this.threshold = threshold;
 		this.maxIteration = maxIteration;
@@ -77,21 +77,21 @@ public class SinglePerceptron extends Classifier{
 	 * @param maxIteration
 	 * @param initialWeight
 	 */
-	public SinglePerceptron(double learningRate, double threshold, int maxIteration, double initialWeight){
+	public SinglePerceptron(double learningRate, double threshold, int maxIteration, double initialWeight) {
 		this.learningRate = learningRate;
 		this.threshold = threshold;
 		this.maxIteration = maxIteration;
 		this.randomWeight = false;
 		this.initialWeight = initialWeight;
 		this.randomSeed = 0;
-		output = new StringBuffer();
+		output = new StringBuffer();		
 	}
 	
 	/**
 	 * 
 	 * @param learningRate
 	 */
-	public void setLearningRate(double learningRate){
+	public void setLearningRate(double learningRate) {
 		this.learningRate = learningRate;
 	}
 	
@@ -99,7 +99,7 @@ public class SinglePerceptron extends Classifier{
 	 * 
 	 * @param threshold
 	 */
-	public void setThreshold(double threshold){
+	public void setThreshold(double threshold) {
 		this.threshold = threshold;
 	}
 	
@@ -107,7 +107,7 @@ public class SinglePerceptron extends Classifier{
 	 * 
 	 * @param maxIteration
 	 */
-	public void setMaxIteration(int maxIteration){
+	public void setMaxIteration(int maxIteration) {
 		this.maxIteration = maxIteration;
 	}
 	
@@ -115,7 +115,7 @@ public class SinglePerceptron extends Classifier{
 	 * Set seed for random number generator
 	 * @param seed
 	 */
-	public void setSeed(long seed){
+	public void setSeed(long seed) {
 		if (seed >= 0)
 			randomSeed = seed;
 	}
@@ -124,7 +124,7 @@ public class SinglePerceptron extends Classifier{
 	 * Set selected single perceptron training algorithm
 	 * @param algorithm
 	 */
-	public void setAlgo(int algorithm){
+	public void setAlgo(int algorithm) {
 		if(algorithm != Options.DeltaRuleBatch && algorithm != Options.DeltaRuleIncremental && algorithm != Options.PerceptronTrainingRule)
 			throw new RuntimeException("invalid algorithm");
 		
@@ -135,7 +135,7 @@ public class SinglePerceptron extends Classifier{
 	 * Randomize vector elements with uniform distribution
 	 * @param weightVec Vector with it's elements randomly initialized
 	 */
-	private void randomizeWeight(DoubleMatrix weightVec){
+	private void randomizeWeight(DoubleMatrix weightVec) {
 		RandomGen rand = new RandomGen(randomSeed);
 		
 		for(int i = 0; i < weightVec.length; i++){
@@ -146,7 +146,7 @@ public class SinglePerceptron extends Classifier{
 	/**
 	 * Get current settings of classifier
 	 */
-	public String[] getOptions(){
+	public String[] getOptions() {
 		String[] options = new String[5];
 		
 		StringBuffer learningRate = new StringBuffer("-LearningRate ");
@@ -197,7 +197,7 @@ public class SinglePerceptron extends Classifier{
 	 * @param x the floating-point value whose signum is to be returned
 	 * @return
 	 */
-	private double sign(double x){
+	private double sign(double x) {
 		if(Double.compare(x, 0.0) >= 0){
 			return 1.0;
 		}else{
@@ -210,7 +210,7 @@ public class SinglePerceptron extends Classifier{
 	 * @param instance
 	 * @return sum of xi * wi in an instance
 	 */
-	private double sum(Instance instance){
+	private double sum(Instance instance) {
 		double sum = 0.0;
 		
 		sum += bias * weightVector.get(0);
@@ -228,7 +228,7 @@ public class SinglePerceptron extends Classifier{
 	 * @param nominal
 	 * @return
 	 */
-	private double target(Instance instance, boolean nominal){
+	private double target(Instance instance, boolean nominal) {
 		double target = 0.0;
 		
 		if(nominal){
@@ -248,7 +248,7 @@ public class SinglePerceptron extends Classifier{
 	 * @param data training data
 	 * @return true if training data contains nominal attributes
 	 */
-	private boolean nominalData(Instances data){
+	private boolean nominalData(Instances data) {
 		boolean found = false;
 		
 		Enumeration attributes = data.enumerateAttributes();
@@ -267,7 +267,7 @@ public class SinglePerceptron extends Classifier{
 	 * @return instances with numeric attributes
 	 * @throws Exception 
 	 */
-	public Instances nominalToNumeric(Instances data) throws Exception{
+	public Instances nominalToNumeric(Instances data) throws Exception {
 		this.nominalToBinaryFilter = new NominalToBinary();
 		this.nominalToBinaryFilter.setInputFormat(data);
 		
@@ -398,11 +398,27 @@ public class SinglePerceptron extends Classifier{
 	}
 	
 	/**
+	 * Compute output for delta rule
+	 * @param value
+	 * @param lowerBound
+	 * @param upperBound
+	 * @return
+	 */
+	private double computeOutput(double value, double lowerBound, double upperBound) {	
+		if(Math.abs(value - lowerBound) >= Math.abs(value - upperBound)){
+			return upperBound;
+		}else{
+			return lowerBound;
+		}
+			
+	}
+	
+	/**
 	 * @param instance instance to be classified
 	 * @return class value of instance
 	 * @throws Exception 
 	 */
-	public double classifyInstance(Instance instance) throws Exception{	
+	public double classifyInstance(Instance instance) throws Exception {	
 		Instances instances = new Instances(dataSet);
 		instances.delete();
 		instances.add(instance);
@@ -411,14 +427,26 @@ public class SinglePerceptron extends Classifier{
 			instances = this.nominalToNumeric(instances);
 		
 		double sum = this.sum(instances.firstInstance());
-		double output = this.sign(sum);
+		double output = 0.0;
 		
-		if(this.classAttribute.isNominal()){
-			if(Double.compare(output, 1.0) == 0)
-				output = 1.0;
-			else if (Double.compare(output, -1.0) == 0)
-				output = 0.0;
-		}
+		if(this.selectedAlgo == Options.PerceptronTrainingRule){
+			output = this.sign(sum);
+			
+			if(this.classAttribute.isNominal()){
+				if(Double.compare(output, 1.0) == 0)
+					output = 1.0;
+				else if (Double.compare(output, -1.0) == 0)
+					output = 0.0;
+			}
+		}else{
+			output = sum;
+			
+			if(this.classAttribute.isNominal()){
+				output = computeOutput(sum, 0.0, 1.0);
+			}else if(this.classAttribute.isNumeric()){
+				output = computeOutput(sum, -1.0, 1.0);
+			}
+		}	
 		
 		return output;
 	}
@@ -426,14 +454,14 @@ public class SinglePerceptron extends Classifier{
 	/**
 	 * @return class attribute
 	 */
-	public Attribute classAttribute(){
+	public Attribute classAttribute() {
 		return this.classAttribute;
 	}
 	
 	/**
 	 * @return string describing the model
 	 */
-	public String toString(){
+	public String toString() {
 		return this.output.toString();
 	}
 	
@@ -444,8 +472,7 @@ public class SinglePerceptron extends Classifier{
 	 * @return
 	 * @throws IOException
 	 */
-	public static Instances loadDatasetArff(String filePath) throws IOException
-    { 
+	public static Instances loadDatasetArff(String filePath) throws IOException { 
 		ArffLoader loader = new ArffLoader();
 		loader.setSource(new File(filePath));
 		return loader.getDataSet();
@@ -456,20 +483,20 @@ public class SinglePerceptron extends Classifier{
 	 * @param args
 	 * @throws Exception
 	 */
-	public static void main(String[] args) throws Exception{
+	public static void main(String[] args) throws Exception {
 		String dataset = "example/weather.numeric.arff";
 		
 		Instances data = loadDatasetArff(dataset);
 		data.setClass(data.attribute(data.numAttributes() - 1));
 		
 		SinglePerceptron ptr = new SinglePerceptron(0.1, 0.01, 10, 0);
-		ptr.setAlgo(Options.PerceptronTrainingRule);
+		ptr.setAlgo(Options.DeltaRuleBatch);
 		
 		ptr.buildClassifier(data);		
 		
 		System.out.println(ptr);
 		
-		Instance instance = data.instance(7);
+		Instance instance = data.instance(0);
 		System.out.println(instance);
 		System.out.println(ptr.classifyInstance(instance));
 		
