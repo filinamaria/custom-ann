@@ -34,13 +34,12 @@ public class MLP extends Classifier{
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		String dataset = "example/test.arff";
+		String dataset = "example/weather.numeric.arff";
 		
 		Instances data = loadDatasetArff(dataset);
 		data.setClassIndex(data.numAttributes() - 1);
 		
 		MultilayerPerceptron mlp = new MultilayerPerceptron();
-		mlp.
 		mlp.buildClassifier(data);
 		
 		System.out.println(mlp);
