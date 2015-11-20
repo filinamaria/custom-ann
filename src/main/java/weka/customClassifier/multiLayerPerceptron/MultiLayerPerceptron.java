@@ -3,6 +3,7 @@ package weka.customClassifier.multiLayerPerceptron;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -43,6 +44,8 @@ public class MultiLayerPerceptron extends Classifier{
 	private Attribute classAttribute;
 	private NominalToBinary nominalToBinaryFilter;
 	
+	private Instances dataSet;
+	
 	
 	/**
 	 * Default constructor
@@ -62,7 +65,7 @@ public class MultiLayerPerceptron extends Classifier{
 	 * @param hiddenLayer
 	 * @param numNodes
 	 */
-	public MultiLayerPerceptron(double learningRate, double mseThreshold, int maxIteration, double momentum, int hiddenLayer, int[] numNodes){
+	public MultiLayerPerceptron(double learningRate, double mseThreshold, int maxIteration, double momentum, int[] numNodes){
 		this.weights = new ArrayList<DoubleMatrix>();
 		this.layers = new ArrayList<DoubleMatrix>();
 		this.lastDeltaWeight = new ArrayList<DoubleMatrix>();
@@ -70,7 +73,7 @@ public class MultiLayerPerceptron extends Classifier{
 		this.mseThreshold = mseThreshold;
 		this.maxIteration = maxIteration;
 		this.momentum = momentum;
-		this.hiddenLayer = hiddenLayer;
+		this.hiddenLayer = numNodes.length;
 		this.numNodes = numNodes;
 		this.randomWeight = true;
 	}
@@ -85,7 +88,7 @@ public class MultiLayerPerceptron extends Classifier{
 	 * @param numNodes
 	 * @param initialWeight
 	 */
-	public MultiLayerPerceptron(double learningRate, double mseThreshold, int maxIteration, double momentum, int hiddenLayer, int[] numNodes, double initialWeight){
+	public MultiLayerPerceptron(double learningRate, double mseThreshold, int maxIteration, double momentum, int[] numNodes, double initialWeight){
 		this.weights = new ArrayList<DoubleMatrix>();
 		this.lastDeltaWeight = new ArrayList<DoubleMatrix>();
 		this.layers = new ArrayList<DoubleMatrix>();
@@ -93,7 +96,7 @@ public class MultiLayerPerceptron extends Classifier{
 		this.mseThreshold = mseThreshold;
 		this.maxIteration = maxIteration;
 		this.momentum = momentum;
-		this.hiddenLayer = hiddenLayer;
+		this.hiddenLayer = numNodes.length;
 		this.numNodes = numNodes;
 		this.randomWeight = false;
 		this.initialWeight = initialWeight;
@@ -220,6 +223,8 @@ public class MultiLayerPerceptron extends Classifier{
 	 * @param data the training data
 	 */
 	public void buildClassifier(Instances data) throws Exception {
+		this.dataSet = data;
+		
 		// test whether classifier can handle the data
 		getCapabilities().testWithFail(data);
 		
@@ -260,33 +265,37 @@ public class MultiLayerPerceptron extends Classifier{
 		
 		// hidden node
 		for (int i=0; i<this.hiddenLayer; i++) {
-			dm = new DoubleMatrix(this.numNodes[i]+1, 1); //+1 untuk bias, DoubleMatrix[0] adalah bias
-			layers.add(dm);
+			DoubleMatrix ff = new DoubleMatrix(this.numNodes[i]+1, 1); //+1 untuk bias, DoubleMatrix[0] adalah bias
+			layers.add(ff);
 		}
 		
 		// output node
-		dm = new DoubleMatrix(data.numClasses(), 1); //+1 untuk bias, DoubleMatrix[0] adalah bias
-		layers.add(dm);
+		DoubleMatrix aa = new DoubleMatrix(data.numClasses(), 1); //+1 untuk bias, DoubleMatrix[0] adalah bias
+		layers.add(aa);
 		
 		
 		// Initialize weight matrix
 		// input to hidden
-		dm = new DoubleMatrix(layers.get(0).rows, layers.get(1).rows);
-		weights.add(dm);
-		lastDeltaWeight.add(dm);
+		DoubleMatrix bb = new DoubleMatrix(layers.get(0).rows, layers.get(1).rows);
+		DoubleMatrix cc = new DoubleMatrix(layers.get(0).rows, layers.get(1).rows);
+		weights.add(bb);
+		lastDeltaWeight.add(cc);
 		
 		// hidden to hidden
 		for (int i=1; i<this.hiddenLayer; i++) {
-			dm = new DoubleMatrix(layers.get(i).rows, layers.get(i+1).rows);
-			weights.add(dm);
-			lastDeltaWeight.add(dm);
+			DoubleMatrix dd = new DoubleMatrix(layers.get(i).rows, layers.get(i+1).rows);
+			DoubleMatrix ee = new DoubleMatrix(layers.get(i).rows, layers.get(i+1).rows);
+			weights.add(dd);
+			lastDeltaWeight.add(ee);
 		}
 		
 		// hidden layer to output layer
-		dm = new DoubleMatrix(layers.get(this.hiddenLayer).rows, layers.get(this.hiddenLayer+1).rows);
-		weights.add(dm);
-		lastDeltaWeight.add(dm);
+		DoubleMatrix gg = new DoubleMatrix(layers.get(this.hiddenLayer).rows, layers.get(this.hiddenLayer+1).rows);
+		DoubleMatrix hh = new DoubleMatrix(layers.get(this.hiddenLayer).rows, layers.get(this.hiddenLayer+1).rows);
+		weights.add(gg);
+		lastDeltaWeight.add(hh);
 		
+		setSeed(System.currentTimeMillis());
 		for (int i=0; i<weights.size(); i++) {
 			if(this.randomWeight){
 				randomizeWeight(weights.get(i));
@@ -300,7 +309,6 @@ public class MultiLayerPerceptron extends Classifier{
 		// learning
 		int epoch = 0;
 		double MSE = Double.POSITIVE_INFINITY;
-		
 		while (epoch < this.maxIteration && MSE>=this.mseThreshold) {
 			Enumeration instances = data.enumerateInstances();
 			while(instances.hasMoreElements()) {
@@ -311,9 +319,10 @@ public class MultiLayerPerceptron extends Classifier{
 					desiredOutput[(int) instance.classValue()] = 1.0;
 				}
 				else {
-					desiredOutput = new double[this.classAttribute.numValues()];
+					desiredOutput = new double[1]; //pasti 1
 					desiredOutput[0] = instance.classValue();
 				}
+				
 				//masukin input
 				//bias
 				layers.get(0).put(0, bias);
@@ -322,9 +331,11 @@ public class MultiLayerPerceptron extends Classifier{
 				}
 				//feedfoward & backprop
 				feedFoward();
-				backPropagation(lastDeltaWeight, desiredOutput);
+				backPropagation(desiredOutput);
 			}
 			MSE = calculateMSE(data);
+			System.out.println("Epoch "+epoch+" MSE="+MSE);
+			System.out.println(this);
 			epoch++;
 		}
 	}
@@ -349,10 +360,10 @@ public class MultiLayerPerceptron extends Classifier{
 	 * As the name stated
 	 */
 	public void feedFoward() {
-		int currentLayer = 1;
-		while (currentLayer < layers.size()) {
-			for (int i=0; i<layers.get(currentLayer).length; i++) {
-				calculateSummation(currentLayer, i);
+		int currentLayer = 0;
+		while (currentLayer < layers.size()-1) {
+			for (int i=0; i<layers.get(currentLayer+1).length; i++) {
+				calculateSummation(currentLayer+1, i);
 			}
 			currentLayer++;
 		}
@@ -391,7 +402,7 @@ public class MultiLayerPerceptron extends Classifier{
 	 * @param lastDeltaWeight
 	 * @param desiredOutput
 	 */
-	public void backPropagation(List<DoubleMatrix> lastDeltaWeight, double[] desiredOutput) {
+	public void backPropagation(double[] desiredOutput) {
 		List<List<Double>> xV = new ArrayList();
 		for (int i=0; i<layers.size(); i++) {
 			List<Double> temp = new ArrayList();
@@ -404,18 +415,15 @@ public class MultiLayerPerceptron extends Classifier{
 			xV.get(this.hiddenLayer+1).add(x);
 			for (int j=0; j<layers.get(this.hiddenLayer).length; j++) {
 				double deltaWeight = 0.0;
-				/*System.out.println(this.hiddenLayer+" "+layers.get(this.hiddenLayer).length+" "+j);
-				System.out.println(xV.get(this.hiddenLayer+1).get(i));
-				System.out.println(layers.get(this.hiddenLayer).get(j));
-				System.out.println(lastDeltaWeight.get(this.hiddenLayer).get(j,i));*/
 				deltaWeight += (learningRate*xV.get(this.hiddenLayer+1).get(i)*layers.get(this.hiddenLayer).get(j)) + (momentum*lastDeltaWeight.get(this.hiddenLayer).get(j,i));
+				//System.out.println("deltaWeight = "+deltaWeight);
 				lastDeltaWeight.get(this.hiddenLayer).put(j,i, deltaWeight);
 				weights.get(this.hiddenLayer).put(j, i, weights.get(this.hiddenLayer).get(j, i) + deltaWeight);
 			}
 		}
 		
 		//hidden layer to input layer
-		for (int currentLayer=this.hiddenLayer; currentLayer>0; currentLayer--)
+		for (int currentLayer=this.hiddenLayer; currentLayer>0; currentLayer--) {
 			for (int i=0; i<layers.get(currentLayer).length; i++) {
 				double sum = 0.0;
 				for (int k=0; k<layers.get(currentLayer+1).length; k++) {
@@ -432,7 +440,79 @@ public class MultiLayerPerceptron extends Classifier{
 					weights.get(currentLayer-1).put(j, i, weights.get(currentLayer-1).get(j,i)+deltaWeight);
 				}
 			}
-		xV.clear();
+		}
+	}
+	
+	/**
+	 * @return If classAttribute is numeric, output is the output of perceptron. If nominal, index of largest output layer
+	 */
+	public double classifyInstance(Instance instance) throws Exception {
+		Instances instances = new Instances(dataSet);
+		instances.delete();
+		instances.add(instance);
+		
+		if(this.nominalData(instances))
+			instances = this.nominalToNumeric(instances);
+		
+		// masukin input
+		// bias
+		layers.get(0).put(0, bias);
+		for (int i=0; i<instances.firstInstance().numAttributes()-1; i++) {
+			layers.get(0).put(i+1, instances.firstInstance().value(i));
+		}
+		
+		feedFoward();
+		
+		double output = 0.0;
+		
+		if(this.classAttribute.isNominal()){
+			int maxIndex = 0;
+			double max = Double.NEGATIVE_INFINITY;
+			for (int i = 0; i < layers.get(layers.size() - 1).length; i++) {
+			    if (layers.get(layers.size() - 1).get(i) > max) {
+			        max = layers.get(layers.size() - 1).get(i);
+			        maxIndex = i;
+			    }
+			}
+			//System.out.println(instances.firstInstance());
+			//System.out.println(layers.get(layers.size()-1));
+			
+			return (double) maxIndex;
+		}else if(this.classAttribute.isNumeric()){
+			output = layers.get(layers.size() - 1).get(0);
+		}
+ 		
+		return output;
+	}
+	
+	/**
+	 * Evaluasi
+	 * @param data
+	 * @throws Exception 
+	 */
+	public void evaluate(Instances data) throws Exception {
+		if (this.classAttribute.isNominal()) {
+			double correctlyClassifiedInstances = 0.0;
+			Enumeration instances = data.enumerateInstances();
+			while(instances.hasMoreElements()){
+				Instance instance = (Instance) instances.nextElement();
+				double retVal = classifyInstance(instance);
+				if (Double.compare(instance.classValue(),retVal)==0) {
+					correctlyClassifiedInstances+=1.0;
+				}
+			}
+			System.out.println("Accuracy = "+correctlyClassifiedInstances/(double)data.numInstances());
+		}
+		else { //numeric
+			double deltaError = 0.0;
+			Enumeration instances = data.enumerateInstances();
+			while(instances.hasMoreElements()){
+				Instance instance = (Instance) instances.nextElement();
+				double retVal = classifyInstance(instance);
+				deltaError += Math.pow(retVal-instance.classValue(), 2);
+			}
+			System.out.println("MSE = "+deltaError/2.0);
+		}
 	}
 	
 	/**
@@ -466,16 +546,21 @@ public class MultiLayerPerceptron extends Classifier{
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		String dataset = "example/weather.numeric.arff";
+		String dataset = "example/weather.nominal.arff";
 		
 		Instances data = loadDatasetArff(dataset);
 		data.setClassIndex(data.numAttributes() - 1);
 		
-		int[] numNodes = new int[]{2, 3};
+		int[] numNodes = new int[]{2};
 		
-		MultiLayerPerceptron mlp = new MultiLayerPerceptron(0.1, 0.01, 10, 0.1, 2, numNodes, 0);
+		MultiLayerPerceptron mlp = new MultiLayerPerceptron(0.01, 0.1, 100000, 0.1, numNodes, 0.0);
 		mlp.buildClassifier(data);
 		
-		System.out.println(mlp);
+		//System.out.println(mlp);
+		
+		Instance instance = data.instance(0);
+		System.out.println(instance);
+		System.out.println(data.classAttribute().value((int) mlp.classifyInstance(instance)));
+		mlp.evaluate(data);
 	}
 }

@@ -491,7 +491,8 @@ public class SinglePerceptron extends Classifier{
 		data.setClass(data.attribute(data.numAttributes() - 1));
 		System.out.println(data.numClasses());
 		
-		SinglePerceptron ptr = new SinglePerceptron(0.1, 0.01, 10, 0);
+		SinglePerceptron ptr = new SinglePerceptron(0.1, 0.01, 10);
+		ptr.setSeed(System.currentTimeMillis());
 		ptr.setAlgo(Options.DeltaRuleBatch);
 		
 		ptr.buildClassifier(data);		
