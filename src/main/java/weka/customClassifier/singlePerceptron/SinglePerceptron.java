@@ -25,7 +25,7 @@ public class SinglePerceptron extends Classifier{
 	private DoubleMatrix deltaWeightVector; // vector for storing delta weights
 	
 	private double learningRate; // learning rate for weight update
-	private double threshold; // MSE threshold
+	private double mseThreshold; // MSE threshold
 	private int maxIteration; // maximum number of epoch
 	
 	private boolean randomWeight;
@@ -48,7 +48,7 @@ public class SinglePerceptron extends Classifier{
 	 */
 	public SinglePerceptron() {
 		this.learningRate = 0.0;
-		this.threshold = 0.0;
+		this.mseThreshold = 0.0;
 		this.maxIteration = 0;
 		this.randomWeight = true;
 		this.randomSeed = 0;
@@ -63,7 +63,7 @@ public class SinglePerceptron extends Classifier{
 	 */
 	public SinglePerceptron(double learningRate, double threshold, int maxIteration) {
 		this.learningRate = learningRate;
-		this.threshold = threshold;
+		this.mseThreshold = threshold;
 		this.maxIteration = maxIteration;
 		this.randomWeight = true;
 		this.randomSeed = 0;
@@ -79,7 +79,7 @@ public class SinglePerceptron extends Classifier{
 	 */
 	public SinglePerceptron(double learningRate, double threshold, int maxIteration, double initialWeight) {
 		this.learningRate = learningRate;
-		this.threshold = threshold;
+		this.mseThreshold = threshold;
 		this.maxIteration = maxIteration;
 		this.randomWeight = false;
 		this.initialWeight = initialWeight;
@@ -100,7 +100,7 @@ public class SinglePerceptron extends Classifier{
 	 * @param threshold
 	 */
 	public void setThreshold(double threshold) {
-		this.threshold = threshold;
+		this.mseThreshold = threshold;
 	}
 	
 	/**
@@ -154,7 +154,7 @@ public class SinglePerceptron extends Classifier{
 		options[0] = learningRate.toString();
 		
 		StringBuffer threshold = new StringBuffer("-Threshold ");
-		threshold.append(this.threshold);
+		threshold.append(this.mseThreshold);
 		options[1] = threshold.toString();
 		
 		StringBuffer maxIteration = new StringBuffer("-MaxIteration ");
@@ -334,7 +334,7 @@ public class SinglePerceptron extends Classifier{
 		double meanSquaredError = Double.POSITIVE_INFINITY;
 		
 		// training iteration, finishes either when epoch reaches max iteration or MSE < threshold
-		while(epoch < this.maxIteration && Double.compare(meanSquaredError, this.threshold) >= 0){
+		while(epoch < this.maxIteration && Double.compare(meanSquaredError, this.mseThreshold) >= 0){
 			
 			Enumeration instances = data.enumerateInstances();
 			
@@ -485,10 +485,11 @@ public class SinglePerceptron extends Classifier{
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		String dataset = "example/weather.numeric.arff";
+		String dataset = "example/test.arff";
 		
 		Instances data = loadDatasetArff(dataset);
 		data.setClass(data.attribute(data.numAttributes() - 1));
+		System.out.println(data.numClasses());
 		
 		SinglePerceptron ptr = new SinglePerceptron(0.1, 0.01, 10, 0);
 		ptr.setAlgo(Options.DeltaRuleBatch);
