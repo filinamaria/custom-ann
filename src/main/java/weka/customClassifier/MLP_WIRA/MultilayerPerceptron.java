@@ -57,7 +57,7 @@ public class MultilayerPerceptron extends Classifier {
     public MultilayerPerceptron() {
         this.learningRate = 0.1;
         this.momentum = 0.0;
-        this.mseThreshold = 0.1;
+        this.mseThreshold = 0.02;
         this.maxIteration = 10;
         this.neuronPerLayer = null;
         this.neuronPerHiddenLayer = null;
@@ -140,11 +140,11 @@ public class MultilayerPerceptron extends Classifier {
 
         // learning
         int epoch = 0;
-        double MSE = Double.POSITIVE_INFINITY;
-        while (epoch < this.maxIteration && MSE>=this.mseThreshold) {
+        double mse = Double.POSITIVE_INFINITY;
+        while (epoch < this.maxIteration && mse>=this.mseThreshold) {
             Enumeration instances = data.enumerateInstances();
             int dataCount = 0;
-            double mse = 0.0;
+            mse = 0.0;
             while(instances.hasMoreElements()) {
                 Instance instance = (Instance) instances.nextElement();
                 double[] targetOutputs;
@@ -172,7 +172,7 @@ public class MultilayerPerceptron extends Classifier {
             /*Scanner in = new Scanner(System.in);
             in.nextInt();*/
             mse /= (dataCount*network[network.length-1].length); //jumlah output node
-            System.out.println("Epoch "+epoch+" MSE="+mse);
+            //System.out.println("Epoch "+epoch+" MSE="+mse);
             epoch++;
         }
     }
@@ -421,12 +421,12 @@ public class MultilayerPerceptron extends Classifier {
         Instances data = loadDatasetArff(dataset);
         data.setClassIndex(data.numAttributes() - 1);
 
-        int[] neuronPerHiddenLayer = new int[]{3};
+        int[] neuronPerHiddenLayer = new int[]{10};
         MultilayerPerceptron mlp = new MultilayerPerceptron();
         mlp.setNeuronPerHiddenLayer(neuronPerHiddenLayer);
-        mlp.setMaxIteration(1000);
-        mlp.setInitialWeight(0.0);
-        mlp.setRandomIntialWeight(false);
+        mlp.setMaxIteration(10000);
+        /*mlp.setInitialWeight(0.0);
+        mlp.setRandomIntialWeight(false);*/
         //mlp.printConfiguration();
 
         mlp.buildClassifier(data);
