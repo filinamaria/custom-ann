@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="cf529d9a-8d3b-4655-b5b2-5dc201198a68" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/weka/customClassifier/MLP_WIRA/MultilayerPerceptron.java" afterPath="$PROJECT_DIR$/src/main/java/weka/customClassifier/MLP_WIRA/MultilayerPerceptron.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="custom-ann.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -27,7 +28,7 @@
       <file leaf-file-name="MultiLayerPerceptron.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/weka/customClassifier/multiLayerPerceptron/MultiLayerPerceptron.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.62068963">
+            <state vertical-scroll-proportion="0.0">
               <caret line="562" column="94" selection-start-line="562" selection-start-column="8" selection-end-line="562" selection-end-column="94" />
               <folding>
                 <element signature="e#4530#4531#0" expanded="true" />
@@ -57,36 +58,40 @@
       <file leaf-file-name="MultilayerPerceptron.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/weka/customClassifier/MLP_WIRA/MultilayerPerceptron.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-20.741573">
-              <caret line="59" column="32" selection-start-line="59" selection-start-column="32" selection-end-line="59" selection-end-column="32" />
+            <state vertical-scroll-proportion="1.1062992">
+              <caret line="487" column="38" selection-start-line="487" selection-start-column="38" selection-end-line="487" selection-end-column="38" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#13741#13742#0" expanded="true" />
-                <element signature="e#13776#13777#0" expanded="true" />
-                <element signature="e#13811#13812#0" expanded="true" />
-                <element signature="e#13842#13843#0" expanded="true" />
-                <element signature="e#13881#13882#0" expanded="true" />
-                <element signature="e#13916#13917#0" expanded="true" />
-                <element signature="e#13955#13956#0" expanded="true" />
-                <element signature="e#13990#13991#0" expanded="true" />
-                <element signature="e#14035#14036#0" expanded="true" />
-                <element signature="e#14079#14080#0" expanded="true" />
-                <element signature="e#14119#14120#0" expanded="true" />
-                <element signature="e#14155#14156#0" expanded="true" />
-                <element signature="e#14195#14196#0" expanded="true" />
-                <element signature="e#14232#14233#0" expanded="true" />
-                <element signature="e#14278#14279#0" expanded="true" />
-                <element signature="e#14321#14322#0" expanded="true" />
-                <element signature="e#15324#15325#0" expanded="true" />
-                <element signature="e#15368#15369#0" expanded="true" />
-                <element signature="e#15417#15418#0" expanded="true" />
-                <element signature="e#15453#15454#0" expanded="true" />
-                <element signature="e#15510#15511#0" expanded="true" />
-                <element signature="e#15554#15555#0" expanded="true" />
-                <element signature="e#15603#15604#0" expanded="true" />
-                <element signature="e#15642#15643#0" expanded="true" />
-                <element signature="e#15836#15837#0" expanded="true" />
-                <element signature="e#15882#15883#0" expanded="true" />
+                <element signature="e#15121#15122#0" expanded="true" />
+                <element signature="e#15156#15157#0" expanded="true" />
+                <element signature="e#15191#15192#0" expanded="true" />
+                <element signature="e#15222#15223#0" expanded="true" />
+                <element signature="e#15261#15262#0" expanded="true" />
+                <element signature="e#15296#15297#0" expanded="true" />
+                <element signature="e#15335#15336#0" expanded="true" />
+                <element signature="e#15370#15371#0" expanded="true" />
+                <element signature="e#15415#15416#0" expanded="true" />
+                <element signature="e#15459#15460#0" expanded="true" />
+                <element signature="e#15499#15500#0" expanded="true" />
+                <element signature="e#15535#15536#0" expanded="true" />
+                <element signature="e#15575#15576#0" expanded="true" />
+                <element signature="e#15612#15613#0" expanded="true" />
+                <element signature="e#15658#15659#0" expanded="true" />
+                <element signature="e#15701#15702#0" expanded="true" />
+                <element signature="e#15752#15753#0" expanded="true" />
+                <element signature="e#15798#15799#0" expanded="true" />
+                <element signature="e#16801#16802#0" expanded="true" />
+                <element signature="e#16845#16846#0" expanded="true" />
+                <element signature="e#16894#16895#0" expanded="true" />
+                <element signature="e#16930#16931#0" expanded="true" />
+                <element signature="e#16987#16988#0" expanded="true" />
+                <element signature="e#17031#17032#0" expanded="true" />
+                <element signature="e#17080#17081#0" expanded="true" />
+                <element signature="e#17119#17120#0" expanded="true" />
+                <element signature="e#17324#17325#0" expanded="true" />
+                <element signature="e#17385#17386#0" expanded="true" />
+                <element signature="e#17444#17445#0" expanded="true" />
+                <element signature="e#17490#17491#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -173,7 +178,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
@@ -321,6 +325,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
       <pane id="Scope" />
     </panes>
   </component>
@@ -526,13 +531,13 @@
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.7602627" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.7586207" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.51559937" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.5369458" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24959612" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -564,6 +569,80 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/weka/customClassifier/multiLayerPerceptron/MultiLayerPerceptron.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
+          <caret line="562" column="94" selection-start-line="562" selection-start-column="8" selection-end-line="562" selection-end-column="94" />
+          <folding>
+            <element signature="e#4530#4531#0" expanded="true" />
+            <element signature="e#4584#4585#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/weka/customClassifier/MLP_WIRA/Neuron.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="47" column="46" selection-start-line="47" selection-start-column="46" selection-end-line="47" selection-end-column="46" />
+          <folding>
+            <element signature="e#524#525#0" expanded="true" />
+            <element signature="e#554#555#0" expanded="true" />
+            <element signature="e#594#595#0" expanded="true" />
+            <element signature="e#628#629#0" expanded="true" />
+            <element signature="e#1651#1652#0" expanded="true" />
+            <element signature="e#1684#1685#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/weka/customClassifier/MLP_WIRA/MultilayerPerceptron.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#15121#15122#0" expanded="true" />
+            <element signature="e#15156#15157#0" expanded="true" />
+            <element signature="e#15191#15192#0" expanded="true" />
+            <element signature="e#15222#15223#0" expanded="true" />
+            <element signature="e#15261#15262#0" expanded="true" />
+            <element signature="e#15296#15297#0" expanded="true" />
+            <element signature="e#15335#15336#0" expanded="true" />
+            <element signature="e#15370#15371#0" expanded="true" />
+            <element signature="e#15415#15416#0" expanded="true" />
+            <element signature="e#15459#15460#0" expanded="true" />
+            <element signature="e#15499#15500#0" expanded="true" />
+            <element signature="e#15535#15536#0" expanded="true" />
+            <element signature="e#15575#15576#0" expanded="true" />
+            <element signature="e#15612#15613#0" expanded="true" />
+            <element signature="e#15658#15659#0" expanded="true" />
+            <element signature="e#15701#15702#0" expanded="true" />
+            <element signature="e#15752#15753#0" expanded="true" />
+            <element signature="e#15798#15799#0" expanded="true" />
+            <element signature="e#16801#16802#0" expanded="true" />
+            <element signature="e#16845#16846#0" expanded="true" />
+            <element signature="e#16894#16895#0" expanded="true" />
+            <element signature="e#16930#16931#0" expanded="true" />
+            <element signature="e#16987#16988#0" expanded="true" />
+            <element signature="e#17031#17032#0" expanded="true" />
+            <element signature="e#17080#17081#0" expanded="true" />
+            <element signature="e#17119#17120#0" expanded="true" />
+            <element signature="e#17324#17325#0" expanded="true" />
+            <element signature="e#17385#17386#0" expanded="true" />
+            <element signature="e#17444#17445#0" expanded="true" />
+            <element signature="e#17490#17491#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/example/weather.numeric.arff">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="22" column="19" selection-start-line="22" selection-start-column="19" selection-end-line="22" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/weka/customClassifier/multiLayerPerceptron/MultiLayerPerceptron.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
           <caret line="23" column="13" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
           <folding>
             <element signature="e#4530#4531#0" expanded="true" />
@@ -592,7 +671,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.30981067">
           <caret line="12" column="11" selection-start-line="12" selection-start-column="11" selection-end-line="12" selection-end-column="11" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -600,7 +678,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="9" column="23" selection-start-line="9" selection-start-column="23" selection-end-line="9" selection-end-column="23" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -614,7 +691,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/weka/customClassifier/multiLayerPerceptron/MultiLayerPerceptron.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.62068963">
+        <state vertical-scroll-proportion="0.0">
           <caret line="562" column="94" selection-start-line="562" selection-start-column="8" selection-end-line="562" selection-end-column="94" />
           <folding>
             <element signature="e#4530#4531#0" expanded="true" />
@@ -648,36 +725,40 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/weka/customClassifier/MLP_WIRA/MultilayerPerceptron.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-20.741573">
-          <caret line="59" column="32" selection-start-line="59" selection-start-column="32" selection-end-line="59" selection-end-column="32" />
+        <state vertical-scroll-proportion="1.1062992">
+          <caret line="487" column="38" selection-start-line="487" selection-start-column="38" selection-end-line="487" selection-end-column="38" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#13741#13742#0" expanded="true" />
-            <element signature="e#13776#13777#0" expanded="true" />
-            <element signature="e#13811#13812#0" expanded="true" />
-            <element signature="e#13842#13843#0" expanded="true" />
-            <element signature="e#13881#13882#0" expanded="true" />
-            <element signature="e#13916#13917#0" expanded="true" />
-            <element signature="e#13955#13956#0" expanded="true" />
-            <element signature="e#13990#13991#0" expanded="true" />
-            <element signature="e#14035#14036#0" expanded="true" />
-            <element signature="e#14079#14080#0" expanded="true" />
-            <element signature="e#14119#14120#0" expanded="true" />
-            <element signature="e#14155#14156#0" expanded="true" />
-            <element signature="e#14195#14196#0" expanded="true" />
-            <element signature="e#14232#14233#0" expanded="true" />
-            <element signature="e#14278#14279#0" expanded="true" />
-            <element signature="e#14321#14322#0" expanded="true" />
-            <element signature="e#15324#15325#0" expanded="true" />
-            <element signature="e#15368#15369#0" expanded="true" />
-            <element signature="e#15417#15418#0" expanded="true" />
-            <element signature="e#15453#15454#0" expanded="true" />
-            <element signature="e#15510#15511#0" expanded="true" />
-            <element signature="e#15554#15555#0" expanded="true" />
-            <element signature="e#15603#15604#0" expanded="true" />
-            <element signature="e#15642#15643#0" expanded="true" />
-            <element signature="e#15836#15837#0" expanded="true" />
-            <element signature="e#15882#15883#0" expanded="true" />
+            <element signature="e#15121#15122#0" expanded="true" />
+            <element signature="e#15156#15157#0" expanded="true" />
+            <element signature="e#15191#15192#0" expanded="true" />
+            <element signature="e#15222#15223#0" expanded="true" />
+            <element signature="e#15261#15262#0" expanded="true" />
+            <element signature="e#15296#15297#0" expanded="true" />
+            <element signature="e#15335#15336#0" expanded="true" />
+            <element signature="e#15370#15371#0" expanded="true" />
+            <element signature="e#15415#15416#0" expanded="true" />
+            <element signature="e#15459#15460#0" expanded="true" />
+            <element signature="e#15499#15500#0" expanded="true" />
+            <element signature="e#15535#15536#0" expanded="true" />
+            <element signature="e#15575#15576#0" expanded="true" />
+            <element signature="e#15612#15613#0" expanded="true" />
+            <element signature="e#15658#15659#0" expanded="true" />
+            <element signature="e#15701#15702#0" expanded="true" />
+            <element signature="e#15752#15753#0" expanded="true" />
+            <element signature="e#15798#15799#0" expanded="true" />
+            <element signature="e#16801#16802#0" expanded="true" />
+            <element signature="e#16845#16846#0" expanded="true" />
+            <element signature="e#16894#16895#0" expanded="true" />
+            <element signature="e#16930#16931#0" expanded="true" />
+            <element signature="e#16987#16988#0" expanded="true" />
+            <element signature="e#17031#17032#0" expanded="true" />
+            <element signature="e#17080#17081#0" expanded="true" />
+            <element signature="e#17119#17120#0" expanded="true" />
+            <element signature="e#17324#17325#0" expanded="true" />
+            <element signature="e#17385#17386#0" expanded="true" />
+            <element signature="e#17444#17445#0" expanded="true" />
+            <element signature="e#17490#17491#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -37,7 +37,11 @@ public class MultilayerPerceptron extends Classifier {
     private NominalToBinary nominalToBinaryFilter;
     private Normalize normalizeFilter;
     private int nInputFeatures;
+    private boolean normalizeAttribute;
 
+    /**
+     * Output configuration to stdout
+     */
     public void printConfiguration() {
         System.out.println("MLP Configuration");
         System.out.println("learning rate       = "+learningRate);
@@ -46,14 +50,18 @@ public class MultilayerPerceptron extends Classifier {
         System.out.println("max iteration       = "+maxIteration);
         System.out.println("random weight       = "+isRandomInitialWeight);
         System.out.println("initial weight      = "+initialWeight);
+        System.out.println("normalize attribute = "+normalizeAttribute);
         System.out.println("n hidden layer      = "+neuronPerHiddenLayer.length);
         StringBuffer str = new StringBuffer("");
         for (int i=0; i<neuronPerHiddenLayer.length; i++)
             str.append(neuronPerHiddenLayer[i]+" ");
         System.out.println("neuron hidden layer = "+str);
-        System.out.println("------------------");
+        System.out.println("------------------\n\n");
     }
 
+    /**
+     * Default Constructor, using default parameter
+     */
     public MultilayerPerceptron() {
         this.learningRate = 0.1;
         this.momentum = 0.0;
@@ -67,6 +75,7 @@ public class MultilayerPerceptron extends Classifier {
         this.classAttribute = null;
         this.nominalToBinaryFilter = null;
         this.normalizeFilter = null;
+        this.normalizeAttribute = true;
     }
 
     @Override
@@ -88,6 +97,11 @@ public class MultilayerPerceptron extends Classifier {
         return result;
     }
 
+    /**
+     * Build MLP Classifier
+     * @param data
+     * @throws Exception
+     */
     @Override
     public void buildClassifier(Instances data) throws Exception {
         this.dataSet = data;
@@ -105,9 +119,11 @@ public class MultilayerPerceptron extends Classifier {
         data = Filter.useFilter(data, nominalToBinaryFilter);
 
         //normallize data
-        normalizeFilter = new Normalize();
-        normalizeFilter.setInputFormat(data);
-        data = Filter.useFilter(data, normalizeFilter);
+        if (this.normalizeAttribute) {
+            normalizeFilter = new Normalize();
+            normalizeFilter.setInputFormat(data);
+            data = Filter.useFilter(data, normalizeFilter);
+        }
 
         this.nInputFeatures = data.numAttributes()-1; //jumlah fitur input
 
@@ -117,7 +133,7 @@ public class MultilayerPerceptron extends Classifier {
             neuronPerLayer[i] = neuronPerHiddenLayer[i];
         }
         neuronPerLayer[neuronPerLayer.length-1] = data.classAttribute().numValues(); //output layer
-
+        //hidden layer
         this.network = new Neuron[this.neuronPerLayer.length][];
         for (int i=0; i<this.neuronPerLayer.length; i++) {
             this.network[i] = new Neuron[neuronPerLayer[i]];
@@ -138,7 +154,7 @@ public class MultilayerPerceptron extends Classifier {
         //initialize weight
         initializeWeight();
 
-        // learning
+        //learning
         int epoch = 0;
         double mse = Double.POSITIVE_INFINITY;
         while (epoch < this.maxIteration && mse>=this.mseThreshold) {
@@ -157,7 +173,7 @@ public class MultilayerPerceptron extends Classifier {
                     targetOutputs[0] = instance.classValue();
                 }
 
-                //masukin input
+                //prepare inputs
                 double[] inputs = new double[instance.numAttributes()-1];
                 for (int i=0; i<inputs.length; i++) {
                     inputs[i] = instance.value(i);
@@ -169,14 +185,17 @@ public class MultilayerPerceptron extends Classifier {
                 backProp(outputs, targetOutputs, inputs);
                 dataCount++;
             }
-            /*Scanner in = new Scanner(System.in);
-            in.nextInt();*/
-            mse /= (dataCount*network[network.length-1].length); //jumlah output node
-            //System.out.println("Epoch "+epoch+" MSE="+mse);
+            mse /= (dataCount*network[network.length-1].length); //correct MSE calculation
+            System.out.println("Epoch "+epoch+" MSE="+mse);
             epoch++;
         }
     }
 
+    /**
+     * Feed network foward
+     * @param inputs
+     * @return neural network's outputs
+     */
     private double[] feedFoward(double inputs[]) {
         double[] outputs = null;
         for (int i=0; i<network.length; i++) {
@@ -185,12 +204,18 @@ public class MultilayerPerceptron extends Classifier {
             for (int j=0; j<network[i].length; j++) {
                 outputResult[j] = network[i][j].output(inputs);
             }
-            inputs = outputResult.clone(); //output layer pertama menjadi input bagi layer berikutnya
+            inputs = outputResult.clone(); //output first layer become input for the next layer
         }
         outputs = inputs.clone();
         return outputs;
     }
 
+    /**
+     * Back propagation algorithm
+     * @param outputs outputs of network
+     * @param targets training target outputs
+     * @param inputs inputs to the network
+     */
     private void backProp(double outputs[], double[] targets, double[] inputs) {
         //error for each neurons
         double[][] error = new double [network.length][];
@@ -205,35 +230,36 @@ public class MultilayerPerceptron extends Classifier {
             double[] weightsToNeuron = network[network.length-1][neuron].getWeights().clone(); //previous weight
             double[] newWeight = new double[network[network.length-1][neuron].getWeights().length];
 
-            //update each weight yang menuju ke dirinya, weight bias juga diupgrade
+            //update each weight to itself, also update bias's weight
             newWeight[0] = weightsToNeuron[0] + (learningRate * error[network.length-1][neuron] * 1.0) //bias
-                    + (momentum*(lastWeigts[0]-weightsToNeuron[0]));
+                        + (momentum*(lastWeigts[0]-weightsToNeuron[0]));
+
             for (int j=1; j<weightsToNeuron.length; j++) {
                 newWeight[j] = weightsToNeuron[j] + learningRate * error[network.length-1][neuron] * network[network.length-2][j-1].getLastOutput()
-                                        + (momentum*(weightsToNeuron[j]-lastWeigts[j]));
-                //W[j,i]           = (learning rate * error[i] * x[j]) + (momentum * lastDeltaWeight); x[j] is either output from previous node or input
-
-                error[network.length-2][j-1] += (weightsToNeuron[j] * error[network.length-1][neuron]);
+                            + (momentum*(weightsToNeuron[j]-lastWeigts[j]));
+                //W[j,i] = (learning rate * error[i] * x[j]) + (momentum * lastDeltaWeight); x[j] is either output from previous node or input
+                error[network.length-2][j-1] += (weightsToNeuron[j] * error[network.length-1][neuron]); //to make life easier
             }
             network[network.length-1][neuron].setWeights(newWeight); //update the weight
         }
 
         //hidden layer to (hidden layer or input layer)
         for (int layer=this.neuronPerHiddenLayer.length-1; layer>=0; layer--){
-            //hitung untuk tiap neuronnya
             for (int neuron=0; neuron < network[layer].length; neuron++) {
                 double[] lastWeigts = network[layer][neuron].getLastWeights().clone();
                 double[] weightsToNeuron = network[layer][neuron].getWeights().clone(); //previous weight
                 double[] newWeight = new double[network[layer][neuron].getWeights().length];
-                //error in here is the sum of error from this node to next layer
-                /*double sumError = 0.0;
+
+                /*error in here is the sum of error from this node to next layer
+                already computed above to make life easier, this is just precaution, don't discard this section...
+                double sumError = 0.0;
                 for (int k=0; k<network[layer+1].length; k++) {
                     sumError += (error[layer+1][k] * network[layer+1][k].getLastWeights()[neuron]); //ambil getLastWeight karna weight yang baru sudah diupdate
                     //error[layer+1][k] * W[j,k]
                 }*/
                 error[layer][neuron] = network[layer][neuron].getLastOutput() * (1-network[layer][neuron].getLastOutput()) * error[layer][neuron];
 
-                //output dari layer sebelumnya
+                //output from previous layer (in backprop's case is the next layer from this layer in the nextwork)
                 double[] prevLayerOutputs;
                 if (layer-1 < 0) {
                     prevLayerOutputs = inputs.clone();
@@ -245,7 +271,7 @@ public class MultilayerPerceptron extends Classifier {
                     }
                 }
 
-                //update each weight yang menuju ke dirinya, weight bias juga diupgate
+                //update each weight to itself, also update bias's weight
                 newWeight[0] = weightsToNeuron[0] + (learningRate * error[layer][neuron] * 1.0) //bias
                         + (momentum*(lastWeigts[0]-weightsToNeuron[0]));
                 for (int j=1; j<weightsToNeuron.length; j++) {
@@ -260,6 +286,9 @@ public class MultilayerPerceptron extends Classifier {
         }
     }
 
+    /**
+     * Initialize neural network's weight
+     */
     private void initializeWeight() {
         for (int i=0; i<network.length; i++) {
             for (int j=0; j<network[i].length; j++) {
@@ -276,6 +305,11 @@ public class MultilayerPerceptron extends Classifier {
         }
     }
 
+    /**
+     * Generate array of random weight
+     * @param length of array
+     * @return array of weight
+     */
     private double[] generateRandomWeight(int length) {
         double[] weights = new double[length];
         Random random = new Random();
@@ -285,6 +319,11 @@ public class MultilayerPerceptron extends Classifier {
         return weights;
     }
 
+    /**
+     * Generate array of initial weight
+     * @param length of array
+     * @return array of weight
+     */
     private double[] generateInitialWeight(int length) {
         double[] weights = new double[length];
         for (int i = 0; i < length; i++) {
@@ -293,16 +332,23 @@ public class MultilayerPerceptron extends Classifier {
         return weights;
     }
 
+    /**
+     * For classification
+     * @param instance
+     * @return probability for each class
+     * @throws Exception
+     */
     @Override
     public double[] distributionForInstance(Instance instance) throws Exception {
         if (instance.hasMissingValue()) {
             throw new NoSupportForMissingValuesException("MultiLayerPerceptron: cannot handle missing value");
         }
         nominalToBinaryFilter.input(instance);
-        Instance numericInstance = nominalToBinaryFilter.output();
-        normalizeFilter.input(numericInstance);
-        Instance predict = normalizeFilter.output();
-
+        Instance predict = nominalToBinaryFilter.output();
+        if (this.normalizeAttribute) {
+            normalizeFilter.input(predict);
+            predict = normalizeFilter.output();
+        }
         //masukin input
         double[] inputs = new double[predict.numAttributes()-1];
         for (int i=0; i<inputs.length; i++) {
@@ -312,6 +358,12 @@ public class MultilayerPerceptron extends Classifier {
         return outputs;
     }
 
+    /**
+     * mse calculation for output layer
+     * @param output of output layer
+     * @param target desired output of training
+     * @return
+     */
     private double mseCalculationOutputLayer(double[] output, double[] target) {
         double sum = 0.0;
         for (int i=0; i<target.length; i++) {
@@ -351,6 +403,10 @@ public class MultilayerPerceptron extends Classifier {
 
     public int[] getNeuronPerHiddenLayer() {
         return neuronPerHiddenLayer;
+    }
+
+    public boolean getUsingNormalizeAttribute() {
+        return this.normalizeAttribute;
     }
 
     public String toString() {
@@ -399,6 +455,10 @@ public class MultilayerPerceptron extends Classifier {
         isRandomInitialWeight = _isRandomInitialWeight;
     }
 
+    public void setNormalizeAttribute(boolean _normalizeAttribute) {
+        this.normalizeAttribute = _normalizeAttribute;
+    }
+
     public void setInitialWeight(double _initialWeight) {
         initialWeight = _initialWeight;
     }
@@ -421,10 +481,11 @@ public class MultilayerPerceptron extends Classifier {
         Instances data = loadDatasetArff(dataset);
         data.setClassIndex(data.numAttributes() - 1);
 
-        int[] neuronPerHiddenLayer = new int[]{10};
+        int[] neuronPerHiddenLayer = new int[]{3};
         MultilayerPerceptron mlp = new MultilayerPerceptron();
         mlp.setNeuronPerHiddenLayer(neuronPerHiddenLayer);
-        mlp.setMaxIteration(10000);
+        mlp.setMaxIteration(100000);
+        mlp.setNormalizeAttribute(true);
         /*mlp.setInitialWeight(0.0);
         mlp.setRandomIntialWeight(false);*/
         //mlp.printConfiguration();
