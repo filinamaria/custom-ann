@@ -406,7 +406,11 @@ public class SinglePerceptron extends Classifier{
 	 * @return
 	 */
 	private double computeOutput(double value, double lowerBound, double upperBound) {	
-		if(Math.abs(value - lowerBound) >= Math.abs(value - upperBound)){
+		if (Double.compare(value, lowerBound)<0)
+			return lowerBound;
+		else if (Double.compare(value, upperBound)>0)
+			return upperBound;
+		else if(Double.compare(Math.abs(lowerBound - value), Math.abs(upperBound-value))>=0) {
 			return upperBound;
 		}else{
 			return lowerBound;
@@ -453,6 +457,36 @@ public class SinglePerceptron extends Classifier{
 	}
 	
 	/**
+	 * Evaluasi
+	 * @param data
+	 * @throws Exception
+	 */
+	public void evaluate(Instances data) throws Exception {
+		if (this.classAttribute.isNominal()) {
+			double correctlyClassifiedInstances = 0.0;
+			Enumeration instances = data.enumerateInstances();
+			while(instances.hasMoreElements()){
+				Instance instance = (Instance) instances.nextElement();
+				double retVal = classifyInstance(instance);
+				if (Double.compare(instance.classValue(),retVal)==0) {
+					correctlyClassifiedInstances+=1.0;
+				}
+			}
+			System.out.println("Accuracy = "+correctlyClassifiedInstances/(double)data.numInstances());
+		}
+		else { //numeric
+			double deltaError = 0.0;
+			Enumeration instances = data.enumerateInstances();
+			while(instances.hasMoreElements()){
+				Instance instance = (Instance) instances.nextElement();
+				double retVal = classifyInstance(instance);
+				deltaError += Math.pow(retVal-instance.classValue(), 2);
+			}
+			System.out.println("MSE = "+deltaError/2.0);
+		}
+	}
+	
+	/**
 	 * @return class attribute
 	 */
 	public Attribute classAttribute() {
@@ -491,9 +525,9 @@ public class SinglePerceptron extends Classifier{
 		data.setClass(data.attribute(data.numAttributes() - 1));
 		System.out.println(data.numClasses());
 		
-		SinglePerceptron ptr = new SinglePerceptron(0.1, 0.01, 10);
+		SinglePerceptron ptr = new SinglePerceptron(0.1, 0.01, 10, 0);
 		ptr.setSeed(System.currentTimeMillis());
-		ptr.setAlgo(Options.DeltaRuleBatch);
+		ptr.setAlgo(Options.PerceptronTrainingRule);
 		
 		ptr.buildClassifier(data);		
 		
@@ -503,6 +537,6 @@ public class SinglePerceptron extends Classifier{
 		System.out.println(instance);
 		System.out.println(ptr.classifyInstance(instance));
 		
-		System.out.println(Arrays.asList(ptr.getOptions()));
+		ptr.evaluate(data);
 	}
 }

@@ -546,14 +546,14 @@ public class MultiLayerPerceptron extends Classifier{
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		String dataset = "example/weather.nominal.arff";
+		String dataset = "example/weather.numeric.arff";
 		
 		Instances data = loadDatasetArff(dataset);
 		data.setClassIndex(data.numAttributes() - 1);
 		
 		int[] numNodes = new int[]{2};
 		
-		MultiLayerPerceptron mlp = new MultiLayerPerceptron(0.01, 0.1, 100000, 0.1, numNodes, 0.0);
+		MultiLayerPerceptron mlp = new MultiLayerPerceptron(0.01, 0.1, 1000, 0.1, numNodes, 0.0);
 		mlp.buildClassifier(data);
 		
 		//System.out.println(mlp);
