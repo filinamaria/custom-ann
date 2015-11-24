@@ -132,7 +132,10 @@ public class MultilayerPerceptron extends Classifier {
         for (int i=0; i<neuronPerLayer.length-1; i++) {
             neuronPerLayer[i] = neuronPerHiddenLayer[i];
         }
-        neuronPerLayer[neuronPerLayer.length-1] = data.classAttribute().numValues(); //output layer
+        if (data.classAttribute().isNumeric())
+            neuronPerLayer[neuronPerLayer.length-1] = 1;
+        else
+            neuronPerLayer[neuronPerLayer.length-1] = data.classAttribute().numValues(); //output layer
         //hidden layer
         this.network = new Neuron[this.neuronPerLayer.length][];
         for (int i=0; i<this.neuronPerLayer.length; i++) {
@@ -225,7 +228,10 @@ public class MultilayerPerceptron extends Classifier {
 
         //output layer
         for (int neuron=0; neuron < network[network.length-1].length; neuron++) {
-            error[network.length-1][neuron] = outputs[neuron]*(1-outputs[neuron])*(targets[neuron]-outputs[neuron]);
+            if (this.classAttribute.isNumeric())
+                error[network.length-1][neuron] = (targets[neuron]-outputs[neuron]);
+            else
+                error[network.length-1][neuron] = outputs[neuron]*(1-outputs[neuron])*(targets[neuron]-outputs[neuron]);
             double[] lastWeigts = network[network.length-1][neuron].getLastWeights().clone();
             double[] weightsToNeuron = network[network.length-1][neuron].getWeights().clone(); //previous weight
             double[] newWeight = new double[network[network.length-1][neuron].getWeights().length];
@@ -486,6 +492,7 @@ public class MultilayerPerceptron extends Classifier {
         mlp.setNeuronPerHiddenLayer(neuronPerHiddenLayer);
         mlp.setMaxIteration(100000);
         mlp.setNormalizeAttribute(true);
+        mlp.setMseThreshold(0.01);
         /*mlp.setInitialWeight(0.0);
         mlp.setRandomIntialWeight(false);*/
         //mlp.printConfiguration();
