@@ -64,7 +64,7 @@ public class Neuron {
         str.append("Activation Function = " + activationFunction.name() + "\n");
         for (int i=0; i<weights.length; i++) {
             if (i==0) str.append("Bias Weight = " + weights[i] + "\n");
-            else      str.append("From Previous Layer Node " + (i - 1) + " = " + weights[i] + "\n");
+            else      str.append("Weight from previous layer neuron" + (i - 1) + " = " + weights[i] + "\n");
         }
         return str.toString();
     }

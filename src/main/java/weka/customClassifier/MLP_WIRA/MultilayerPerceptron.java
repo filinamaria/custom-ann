@@ -22,7 +22,7 @@ import java.util.Scanner;
 public class MultilayerPerceptron extends Classifier {
     private double learningRate; // learning rate for weight update
     private double momentum;
-    private double mseThreshold; // MSE threshold
+    private double deltaMSEthreshold; // MSE threshold
     private int maxIteration; // maximum number of epoch
     private boolean isRandomInitialWeight;
     private double initialWeight;
@@ -46,7 +46,7 @@ public class MultilayerPerceptron extends Classifier {
         System.out.println("MLP Configuration");
         System.out.println("learning rate       = "+learningRate);
         System.out.println("momentum            = "+momentum);
-        System.out.println("mseThreshold        = "+mseThreshold);
+        System.out.println("mseThreshold        = "+deltaMSEthreshold);
         System.out.println("max iteration       = "+maxIteration);
         System.out.println("random weight       = "+isRandomInitialWeight);
         System.out.println("initial weight      = "+initialWeight);
@@ -65,7 +65,7 @@ public class MultilayerPerceptron extends Classifier {
     public MultilayerPerceptron() {
         this.learningRate = 0.1;
         this.momentum = 0.0;
-        this.mseThreshold = 0.02;
+        this.deltaMSEthreshold = 0.0001;
         this.maxIteration = 10;
         this.neuronPerLayer = null;
         this.neuronPerHiddenLayer = null;
@@ -159,11 +159,12 @@ public class MultilayerPerceptron extends Classifier {
 
         //learning
         int epoch = 0;
-        double mse = Double.POSITIVE_INFINITY;
-        while (epoch < this.maxIteration && mse>=this.mseThreshold) {
+        double prevMSE = Double.POSITIVE_INFINITY;
+        double deltaMSE = Double.POSITIVE_INFINITY;
+        while (epoch < this.maxIteration && Double.compare(deltaMSE,this.deltaMSEthreshold)>0) {
             Enumeration instances = data.enumerateInstances();
             int dataCount = 0;
-            mse = 0.0;
+            double mse = 0.0;
             while(instances.hasMoreElements()) {
                 Instance instance = (Instance) instances.nextElement();
                 double[] targetOutputs;
@@ -190,6 +191,8 @@ public class MultilayerPerceptron extends Classifier {
             }
             mse /= (dataCount*network[network.length-1].length); //correct MSE calculation
             System.out.println("Epoch "+epoch+" MSE="+mse);
+            deltaMSE = Math.abs(prevMSE-mse);
+            prevMSE = mse;
             epoch++;
         }
     }
@@ -387,8 +390,8 @@ public class MultilayerPerceptron extends Classifier {
         return momentum;
     }
 
-    public double getMseThreshold() {
-        return mseThreshold;
+    public double getDeltaMSEthreshold() {
+        return deltaMSEthreshold;
     }
 
     public double getMaxIteration() {
@@ -436,7 +439,7 @@ public class MultilayerPerceptron extends Classifier {
                 str.append(network[network.length-1][j].toString());
             str.append("\n");
         }
-        str.append("-----------------\n\n");
+        str.append("-----------------\n");
 
         return str.toString();
     }
@@ -449,8 +452,8 @@ public class MultilayerPerceptron extends Classifier {
         momentum = _momentum;
     }
 
-    public void setMseThreshold(double _mseThreshold) {
-        mseThreshold = _mseThreshold;
+    public void setDeltaMSEthreshold(double _mseThreshold) {
+        deltaMSEthreshold = _mseThreshold;
     }
 
     public void setMaxIteration(int _maxIter) {
@@ -482,7 +485,7 @@ public class MultilayerPerceptron extends Classifier {
     }
 
     public static void main(String[] args) throws Exception {
-        String dataset = "example/weather.numeric.arff";
+        String dataset = "example/iris.arff";
 
         Instances data = loadDatasetArff(dataset);
         data.setClassIndex(data.numAttributes() - 1);
@@ -492,7 +495,7 @@ public class MultilayerPerceptron extends Classifier {
         mlp.setNeuronPerHiddenLayer(neuronPerHiddenLayer);
         mlp.setMaxIteration(100000);
         mlp.setNormalizeAttribute(true);
-        mlp.setMseThreshold(0.01);
+        mlp.setDeltaMSEthreshold(0.00001);
         /*mlp.setInitialWeight(0.0);
         mlp.setRandomIntialWeight(false);*/
         //mlp.printConfiguration();

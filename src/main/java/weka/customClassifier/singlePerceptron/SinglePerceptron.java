@@ -17,31 +17,26 @@ import weka.core.Capabilities.Capability;
 import weka.core.converters.ArffLoader;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.NominalToBinary;
+import weka.filters.unsupervised.attribute.Normalize;
 
 public class SinglePerceptron extends Classifier{
 	private static final double bias = 1.0; // bias unit
-	
 	private DoubleMatrix weightVector; // vector for storing weights
 	private DoubleMatrix deltaWeightVector; // vector for storing delta weights
-	
 	private double learningRate; // learning rate for weight update
 	private double mseThreshold; // MSE threshold
 	private int maxIteration; // maximum number of epoch
-	
+	private double deltaMSEThreshold;
 	private boolean randomWeight;
 	private double initialWeight; // user-given initial weights
-	
 	private long randomSeed; // seed used for random number generator
-	
 	private StringBuffer output; // string buffer describing the model
-	
 	private NominalToBinary nominalToBinaryFilter; // filter to convert nominal attributes to binary numeric attributes
-	
 	private Attribute classAttribute;
-	
 	private int selectedAlgo;
-	
 	private Instances dataSet;
+	private boolean useNormalization;
+	private Normalize normalization;
 	
 	/**
 	 * Default constructor
@@ -50,8 +45,10 @@ public class SinglePerceptron extends Classifier{
 		this.learningRate = 0.0;
 		this.mseThreshold = 0.0;
 		this.maxIteration = 0;
+		this.deltaMSEThreshold = 0.0001;
 		this.randomWeight = true;
 		this.randomSeed = 0;
+		this.useNormalization = true;
 		output = new StringBuffer();
 	}
 	
@@ -73,13 +70,15 @@ public class SinglePerceptron extends Classifier{
 	/**
 	 * User-defined constructor with given initial weights
 	 * @param learningRate
-	 * @param threshold
+	 * @param msethreshold
+	 * @param deltaMSE
 	 * @param maxIteration
 	 * @param initialWeight
 	 */
-	public SinglePerceptron(double learningRate, double threshold, int maxIteration, double initialWeight) {
+	public SinglePerceptron(double learningRate, double msethreshold, double deltaMSE, int maxIteration, double initialWeight) {
 		this.learningRate = learningRate;
-		this.mseThreshold = threshold;
+		this.mseThreshold = msethreshold;
+		this.deltaMSEThreshold = deltaMSE;
 		this.maxIteration = maxIteration;
 		this.randomWeight = false;
 		this.initialWeight = initialWeight;
@@ -301,6 +300,13 @@ public class SinglePerceptron extends Classifier{
 		// check if data contains nominal attributes
 		if(nominalData(data))
 			data = nominalToNumeric(data);
+
+		//normalize numeric data
+		if (useNormalization) {
+			normalization = new Normalize();
+			normalization.setInputFormat(data);
+			data = Filter.useFilter(data, normalization);
+		}
 		
 		this.classAttribute = data.classAttribute();
 		
@@ -331,10 +337,10 @@ public class SinglePerceptron extends Classifier{
 		}
 		
 		int epoch = 0;
-		double meanSquaredError = Double.POSITIVE_INFINITY;
-		
+		double prevMSE = Double.POSITIVE_INFINITY;
+		double deltaMSE = Double.POSITIVE_INFINITY;
 		// training iteration, finishes either when epoch reaches max iteration or MSE < threshold
-		while(epoch < this.maxIteration && Double.compare(meanSquaredError, this.mseThreshold) >= 0){
+		while(epoch < this.maxIteration && ((Double.compare(deltaMSE, this.deltaMSEThreshold) >= 0) || (Double.compare(prevMSE, this.mseThreshold)>=0))) {
 			
 			Enumeration instances = data.enumerateInstances();
 			
@@ -390,10 +396,11 @@ public class SinglePerceptron extends Classifier{
 				squaredError += Math.pow(error, 2.0);
 			}
 			
-			meanSquaredError = squaredError / 2.0;
-			
+			double meanSquaredError = squaredError / 2.0;
 			output.append("epoch " + epoch + ": " + weightVector + "\n");
-			
+			output.append("epoch " + epoch + ": " + meanSquaredError + "\n");
+			deltaMSE = Math.abs(prevMSE - meanSquaredError);
+			prevMSE = meanSquaredError;
 			epoch++;
 		}
 	}
@@ -430,6 +437,9 @@ public class SinglePerceptron extends Classifier{
 		
 		if(this.nominalData(instances))
 			instances = this.nominalToNumeric(instances);
+
+		if (this.useNormalization)
+			instances = Filter.useFilter(instances, this.normalization);
 		
 		double sum = this.sum(instances.firstInstance());
 		double output = 0.0;
@@ -513,29 +523,34 @@ public class SinglePerceptron extends Classifier{
 		return loader.getDataSet();
     }
 
+	public void setUseNormalization(boolean useNormalize) {
+		this.useNormalization = useNormalize;
+	}
+
 	/**
 	 * Main program. For testing purpose only
 	 * @param args
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		String dataset = "example/test.arff";
+		String dataset = "example/weather.numeric.arff";
 		
 		Instances data = loadDatasetArff(dataset);
 		data.setClass(data.attribute(data.numAttributes() - 1));
 		System.out.println(data.numClasses());
 		
-		SinglePerceptron ptr = new SinglePerceptron(0.1, 0.01, 10, 0);
+		SinglePerceptron ptr = new SinglePerceptron(0.1, 0.001, 0.001, 10, 0);
+		ptr.setUseNormalization(true);
 		ptr.setSeed(System.currentTimeMillis());
-		ptr.setAlgo(Options.PerceptronTrainingRule);
+		ptr.setAlgo(Options.DeltaRuleIncremental);
 		
 		ptr.buildClassifier(data);		
 		
 		System.out.println(ptr);
 		
-		Instance instance = data.instance(0);
-		System.out.println(instance);
-		System.out.println(ptr.classifyInstance(instance));
+		//Instance instance = data.instance(0);
+		//System.out.println(instance);
+		//System.out.println(ptr.classifyInstance(instance));
 		
 		ptr.evaluate(data);
 	}
