@@ -222,7 +222,6 @@ public class SinglePerceptron extends Classifier{
 		result.enable(Capability.MISSING_VALUES);
 
 		// class
-		result.enable(Capability.NOMINAL_CLASS);
 		result.enable(Capability.NUMERIC_CLASS);
 		result.enable(Capability.BINARY_CLASS);
 		result.enable(Capability.MISSING_CLASS_VALUES);
@@ -343,7 +342,7 @@ public class SinglePerceptron extends Classifier{
 		
 		// test whether classifier can handle the data
 		getCapabilities().testWithFail(data);
-		
+				
 		// remove instances with missing class
 		data = new Instances(data);
 		data.deleteWithMissingClass();
@@ -610,7 +609,7 @@ public class SinglePerceptron extends Classifier{
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		String dataset = "example/test.arff";
+		String dataset = "example/weather.nominal.arff";
 		
 		Instances data = loadDatasetArff(dataset);
 		data.setClass(data.attribute(data.numAttributes() - 1));
@@ -627,6 +626,5 @@ public class SinglePerceptron extends Classifier{
 		Evaluation eval = new Evaluation(data);
 		eval.evaluateModel(ptr, data);
 		System.out.println(eval.toSummaryString());
-		//ptr.evaluate(data);
 	}
 }
