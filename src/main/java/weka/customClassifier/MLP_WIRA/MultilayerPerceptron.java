@@ -485,7 +485,7 @@ public class MultilayerPerceptron extends Classifier {
     }
 
     public static void main(String[] args) throws Exception {
-        String dataset = "example/iris.arff";
+        String dataset = "example/test.arff";
 
         Instances data = loadDatasetArff(dataset);
         data.setClassIndex(data.numAttributes() - 1);
