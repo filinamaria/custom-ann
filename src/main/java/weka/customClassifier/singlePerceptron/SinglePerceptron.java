@@ -261,7 +261,7 @@ public class SinglePerceptron extends Classifier{
 	private double target(Instance instance, boolean nominal) {
 		double target = 0.0;
 		
-		if(nominal){
+		if(nominal && this.selectedAlgo == Options.PerceptronTrainingRule){
 			if(Double.compare(instance.value(instance.classAttribute()), 1.0) == 0)
 				target = 1.0;
 			else if (Double.compare(instance.value(instance.classAttribute()), 0.0) == 0)
@@ -366,7 +366,7 @@ public class SinglePerceptron extends Classifier{
 			for(int i = 0; i < instance.numAttributes(); i++){
 				if(instance.attribute(i).isNominal())
 					System.out.print(instance.stringValue(i) + " ");
-				else
+				//else
 					System.out.print(instance.value(i) + " ");
 			}
 			
@@ -404,7 +404,7 @@ public class SinglePerceptron extends Classifier{
 					output = this.sign(sum);	
 				else 
 					output = sum;	
-				
+								
 				double target = this.target(instance, instance.classAttribute().isNominal());
 				double error = target - output;
 				
@@ -607,7 +607,7 @@ public class SinglePerceptron extends Classifier{
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		String dataset = "example/test.arff";
+		String dataset = "example/weather.numeric.arff";
 		
 		Instances data = loadDatasetArff(dataset);
 		data.setClass(data.attribute(data.numAttributes() - 1));
@@ -617,8 +617,8 @@ public class SinglePerceptron extends Classifier{
 		ptr.setMSEThreshold(0.01);
 		ptr.setMaxIteration(10);
 		ptr.setInitialWeight(0.0);
-		ptr.setUseNormalization(false);
-		ptr.setAlgo(Options.PerceptronTrainingRule);
+		ptr.setUseNormalization(true);
+		ptr.setAlgo(Options.DeltaRuleIncremental);
 		
 		ptr.buildClassifier(data);		
 		
