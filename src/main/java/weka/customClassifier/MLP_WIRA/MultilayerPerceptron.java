@@ -22,7 +22,7 @@ import java.util.Scanner;
 public class MultilayerPerceptron extends Classifier {
     private double learningRate; // learning rate for weight update
     private double momentum;
-    private double deltaMSEthreshold; // MSE threshold
+    private double mseThreshold; // MSE threshold
     private int maxIteration; // maximum number of epoch
     private boolean isRandomInitialWeight;
     private double initialWeight;
@@ -46,7 +46,7 @@ public class MultilayerPerceptron extends Classifier {
         System.out.println("MLP Configuration");
         System.out.println("learning rate       = "+learningRate);
         System.out.println("momentum            = "+momentum);
-        System.out.println("mseThreshold        = "+deltaMSEthreshold);
+        System.out.println("mseThreshold        = "+mseThreshold);
         System.out.println("max iteration       = "+maxIteration);
         System.out.println("random weight       = "+isRandomInitialWeight);
         System.out.println("initial weight      = "+initialWeight);
@@ -65,7 +65,7 @@ public class MultilayerPerceptron extends Classifier {
     public MultilayerPerceptron() {
         this.learningRate = 0.1;
         this.momentum = 0.0;
-        this.deltaMSEthreshold = 0.0001;
+        this.mseThreshold = 0.0001;
         this.maxIteration = 10;
         this.neuronPerLayer = null;
         this.neuronPerHiddenLayer = null;
@@ -159,8 +159,7 @@ public class MultilayerPerceptron extends Classifier {
         //learning
         int epoch = 0;
         double prevMSE = Double.POSITIVE_INFINITY;
-        double deltaMSE = Double.POSITIVE_INFINITY;
-        while (epoch < this.maxIteration && Double.compare(deltaMSE,this.deltaMSEthreshold)>0) {
+        while (epoch < this.maxIteration && Double.compare(prevMSE,this.mseThreshold)>0) {
             Enumeration instances = data.enumerateInstances();
             int dataCount = 0;
             double mse = 0.0;
@@ -190,7 +189,6 @@ public class MultilayerPerceptron extends Classifier {
             }
             mse /= (dataCount*network[network.length-1].length); //correct MSE calculation
             System.out.println("Epoch "+epoch+" MSE="+mse);
-            deltaMSE = Math.abs(prevMSE-mse);
             prevMSE = mse;
             epoch++;
         }
@@ -390,7 +388,7 @@ public class MultilayerPerceptron extends Classifier {
     }
 
     public double getDeltaMSEthreshold() {
-        return deltaMSEthreshold;
+        return mseThreshold;
     }
 
     public double getMaxIteration() {
@@ -452,7 +450,7 @@ public class MultilayerPerceptron extends Classifier {
     }
 
     public void setDeltaMSEthreshold(double _mseThreshold) {
-        deltaMSEthreshold = _mseThreshold;
+        mseThreshold = _mseThreshold;
     }
 
     public void setMaxIteration(int _maxIter) {
@@ -468,6 +466,7 @@ public class MultilayerPerceptron extends Classifier {
     }
 
     public void setInitialWeight(double _initialWeight) {
+    	this.isRandomInitialWeight = false;
         initialWeight = _initialWeight;
     }
 
