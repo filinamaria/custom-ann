@@ -30,7 +30,6 @@ public class SinglePerceptron extends Classifier{
 	private double learningRate; // learning rate for weight update
 	private double mseThreshold; // MSE threshold
 	private int maxIteration; // maximum number of epoch
-	private double deltaMSEThreshold;
 	
 	private boolean randomWeight;
 	private double initialWeight; // user-given initial weights
@@ -56,7 +55,6 @@ public class SinglePerceptron extends Classifier{
 		this.learningRate = 0.1;
 		this.mseThreshold = 0.0;
 		this.maxIteration = 10;
-		this.deltaMSEThreshold = 0.0001;
 		this.randomWeight = true;
 		this.randomSeed = 0;
 		this.useNormalization = true;
@@ -69,10 +67,9 @@ public class SinglePerceptron extends Classifier{
 	 * @param threshold
 	 * @param maxIteration
 	 */
-	public SinglePerceptron(double learningRate, double mseThreshold, double deltaMSE, int maxIteration) {
+	public SinglePerceptron(double learningRate, double mseThreshold, int maxIteration) {
 		this.learningRate = learningRate;
 		this.mseThreshold = mseThreshold;
-		this.deltaMSEThreshold = deltaMSE;
 		this.maxIteration = maxIteration;
 		this.randomWeight = true;
 		this.randomSeed = 0;
@@ -88,10 +85,9 @@ public class SinglePerceptron extends Classifier{
 	 * @param maxIteration
 	 * @param initialWeight
 	 */
-	public SinglePerceptron(double learningRate, double msethreshold, double deltaMSE, int maxIteration, double initialWeight) {
+	public SinglePerceptron(double learningRate, double msethreshold, int maxIteration, double initialWeight) {
 		this.learningRate = learningRate;
 		this.mseThreshold = msethreshold;
-		this.deltaMSEThreshold = deltaMSE;
 		this.maxIteration = maxIteration;
 		this.randomWeight = false;
 		this.initialWeight = initialWeight;
@@ -108,21 +104,22 @@ public class SinglePerceptron extends Classifier{
 		this.mseThreshold = mseThreshold;
 	}
 	
-	public void setDeltaMSEThreshold(double deltaMSEThreshold) {
-		this.deltaMSEThreshold = deltaMSEThreshold;
-	}
-	
 	public void setMaxIteration(int maxIteration) {
 		this.maxIteration = maxIteration;
 	}
 	
 	public void setInitialWeight(double initialWeight) {
+		this.randomWeight = false;
 		this.initialWeight = initialWeight;
 	}
 	
 	public void setSeed(long seed) {
+		this.randomWeight = true;
+		
 		if (seed >= 0)
-			randomSeed = seed;
+			this.randomSeed = seed;
+		else
+			this.randomSeed = 0;
 	}
 	
 	public void setAlgo(int algorithm) {
@@ -142,10 +139,6 @@ public class SinglePerceptron extends Classifier{
 	
 	public double getMSEThreshold() {
 		return this.mseThreshold;
-	}
-	
-	public double getDeltaMSEThreshold() {
-		return this.deltaMSEThreshold;
 	}
 	
 	public int getMaxIteration() {
@@ -394,10 +387,10 @@ public class SinglePerceptron extends Classifier{
 		}
 		
 		int epoch = 0;
-		double prevMSE = Double.POSITIVE_INFINITY;
-		double deltaMSE = Double.POSITIVE_INFINITY;
+		double meanSquaredError = Double.POSITIVE_INFINITY;
+		
 		// training iteration, finishes either when epoch reaches max iteration or MSE < threshold
-		while(epoch < this.maxIteration && ((Double.compare(deltaMSE, this.deltaMSEThreshold) >= 0) || (Double.compare(prevMSE, this.mseThreshold)>=0))) {
+		while(epoch < this.maxIteration && Double.compare(meanSquaredError, this.mseThreshold) >= 0) {
 			
 			Enumeration instances = data.enumerateInstances();
 			
@@ -446,18 +439,23 @@ public class SinglePerceptron extends Classifier{
 				Instance instance = (Instance) instances.nextElement();
 				
 				double sum = this.sum(instance);
-				double output = this.sign(sum);
+				double output = 0.0;
+				
+				if(this.selectedAlgo == Options.PerceptronTrainingRule)
+					output = this.sign(sum);
+				else
+					output = sum;
+					
 				double target = this.target(instance, instance.classAttribute().isNominal());
 				double error = target - output;
 				
 				squaredError += Math.pow(error, 2.0);
 			}
 			
-			double meanSquaredError = squaredError / 2.0;
+			meanSquaredError = squaredError / 2.0;
 			output.append("epoch " + epoch + ": " + weightVector + "\n");
 			output.append("epoch " + epoch + " MSE: " + meanSquaredError + "\n");
-			deltaMSE = Math.abs(prevMSE - meanSquaredError);
-			prevMSE = meanSquaredError;
+			
 			epoch++;
 		}
 	}
@@ -609,14 +607,17 @@ public class SinglePerceptron extends Classifier{
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		String dataset = "example/weather.nominal.arff";
+		String dataset = "example/test.arff";
 		
 		Instances data = loadDatasetArff(dataset);
 		data.setClass(data.attribute(data.numAttributes() - 1));
 		
-		SinglePerceptron ptr = new SinglePerceptron(0.1, 0.01, 0.0, 10, 0);
-		ptr.setUseNormalization(true);
-		ptr.setSeed(System.currentTimeMillis());
+		SinglePerceptron ptr = new SinglePerceptron();
+		ptr.setLearningRate(0.1);
+		ptr.setMSEThreshold(0.01);
+		ptr.setMaxIteration(10);
+		ptr.setInitialWeight(0.0);
+		ptr.setUseNormalization(false);
 		ptr.setAlgo(Options.PerceptronTrainingRule);
 		
 		ptr.buildClassifier(data);		

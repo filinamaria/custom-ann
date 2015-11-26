@@ -91,7 +91,6 @@ public class MultilayerPerceptron extends Classifier {
         // class
         result.enable(Capabilities.Capability.NOMINAL_CLASS);
         result.enable(Capabilities.Capability.NUMERIC_CLASS);
-        result.enable(Capabilities.Capability.BINARY_CLASS);
         result.enable(Capabilities.Capability.MISSING_CLASS_VALUES);
 
         return result;
