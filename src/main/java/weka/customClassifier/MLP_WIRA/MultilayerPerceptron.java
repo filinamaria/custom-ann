@@ -489,17 +489,15 @@ public class MultilayerPerceptron extends Classifier {
         data.setClassIndex(data.numAttributes() - 1);
 
         int[] neuronPerHiddenLayer = new int[]{3};
+        
         MultilayerPerceptron mlp = new MultilayerPerceptron();
         mlp.setLearningRate(0.1);
         mlp.setMomentum(0.0);
-        
+        mlp.setMSEthreshold(0.0001);
         mlp.setNeuronPerHiddenLayer(neuronPerHiddenLayer);
-        mlp.setMaxIteration(100000);
+        mlp.setMaxIteration(10000);
         mlp.setNormalizeAttribute(true);
-        mlp.setDeltaMSEthreshold(0.00001);
-        /*mlp.setInitialWeight(0.0);
-        mlp.setRandomIntialWeight(false);*/
-        //mlp.printConfiguration();
+        mlp.setRandomIntialWeight(true);       
 
         mlp.buildClassifier(data);
         Instance instance = data.instance(1);
