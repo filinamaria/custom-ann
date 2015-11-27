@@ -570,7 +570,7 @@ public class SinglePerceptron extends Classifier{
 				double retVal = classifyInstance(instance);
 				deltaError += Math.pow(retVal-instance.classValue(), 2);
 			}
-			System.out.println("MSE = "+deltaError/2.0);
+			System.out.println("MSE = "+ deltaError/2.0);
 		}
 	}
 	
@@ -607,7 +607,7 @@ public class SinglePerceptron extends Classifier{
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		String dataset = "example/weather.numeric.arff";
+		String dataset = "example/weather.nominal.arff";
 		
 		Instances data = loadDatasetArff(dataset);
 		data.setClass(data.attribute(data.numAttributes() - 1));

@@ -449,7 +449,7 @@ public class MultilayerPerceptron extends Classifier {
         momentum = _momentum;
     }
 
-    public void setDeltaMSEthreshold(double _mseThreshold) {
+    public void setMSEthreshold(double _mseThreshold) {
         mseThreshold = _mseThreshold;
     }
 
@@ -490,6 +490,9 @@ public class MultilayerPerceptron extends Classifier {
 
         int[] neuronPerHiddenLayer = new int[]{3};
         MultilayerPerceptron mlp = new MultilayerPerceptron();
+        mlp.setLearningRate(0.1);
+        mlp.setMomentum(0.0);
+        
         mlp.setNeuronPerHiddenLayer(neuronPerHiddenLayer);
         mlp.setMaxIteration(100000);
         mlp.setNormalizeAttribute(true);
