@@ -64,7 +64,7 @@ public class SinglePerceptron extends Classifier{
 	/**
 	 * User-defined constructor with random initial weights
 	 * @param learningRate
-	 * @param threshold
+	 * @param mseThreshold
 	 * @param maxIteration
 	 */
 	public SinglePerceptron(double learningRate, double mseThreshold, int maxIteration) {
@@ -81,7 +81,6 @@ public class SinglePerceptron extends Classifier{
 	 * User-defined constructor with given initial weights
 	 * @param learningRate
 	 * @param msethreshold
-	 * @param deltaMSE
 	 * @param maxIteration
 	 * @param initialWeight
 	 */
@@ -489,7 +488,7 @@ public class SinglePerceptron extends Classifier{
     @Override
     public double[] distributionForInstance(Instance instance) throws Exception {
         if (instance.hasMissingValue()) {
-            throw new NoSupportForMissingValuesException("MultiLayerPerceptron: cannot handle missing value");
+            throw new NoSupportForMissingValuesException("SingleLayerPerceptron: cannot handle missing value");
         }
 
         double[] outputs = new double[instance.numClasses()];
@@ -620,7 +619,7 @@ public class SinglePerceptron extends Classifier{
 		ptr.setUseNormalization(true);
 		ptr.setAlgo(Options.DeltaRuleIncremental);
 		
-		ptr.buildClassifier(data);		
+		ptr.buildClassifier(data);
 		
 		System.out.println(ptr);
 	

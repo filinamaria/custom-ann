@@ -20,6 +20,7 @@ import weka.core.Instances;
 import weka.core.converters.ArffLoader;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.NominalToBinary;
+import weka.classifiers.functions.LibSVM;
 
 public class MultiLayerPerceptron extends Classifier{
 	private static final double bias = 1.0; // bias unit
